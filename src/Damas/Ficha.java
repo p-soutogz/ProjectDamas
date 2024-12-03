@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class Ficha {
     
-    coordenadas pos;
+    private coordenadas pos;
     ArrayList<coordenadas> destinosCaptura;
     ArrayList<coordenadas> destinos;
     
@@ -27,6 +27,14 @@ public class Ficha {
         pos=f.pos; 
     }
 
+    public coordenadas getPos() {
+        return pos;
+    }
+
+    public void setPos(coordenadas pos) {
+        this.pos = pos;
+    }
+    
     public String getColor() { return " "; }
     
     public boolean isEmpty(){ return true; }

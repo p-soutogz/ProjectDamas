@@ -14,12 +14,13 @@ import excepciones.*;
 
 public class Juego {
     
-    Ficha[][] Tablero; 
-    ArrayList<Ficha> Blancas;
-    ArrayList<Ficha> Negras;
-    String turno;
+    private Ficha[][] Tablero; 
+    private int numBlancas;
+    private int numNegras;
+    private String turno;
     private boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
-            
+    private StringBuffer Historial; 
+    
     public Juego ()
     {    
         initComponets();    
@@ -30,8 +31,8 @@ public class Juego {
         turno = "B";
         hasCapturado = false;
         Tablero = new Ficha[8][8];
-        Blancas = new ArrayList<>();
-        Negras = new ArrayList<>();
+        numBlancas = 12; 
+        numNegras = 12;
            
         for (int i = 0; i < 8; i++)
         {
@@ -45,8 +46,7 @@ public class Juego {
         {
             for (int j = c % 2; j < 8; j += 2)
             {
-                Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
-                Negras.add(Tablero[i][j]);
+                Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
             }
             c++;
         }
@@ -55,8 +55,7 @@ public class Juego {
         {
             for (int j = c % 2; j < 8; j += 2)
             {
-                Tablero[i][j] = new Dama(new coordenadas(i,j),"B");
-                Blancas.add(Tablero[i][j]);
+                Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"B");
             }
             c++;
         }
@@ -68,10 +67,14 @@ public class Juego {
         return Tablero[p.x][p.y];
     }
     
-    public void setFichaAt(Ficha f,coordenadas p)
+    public void setFichaAt(Ficha f,coordenadas p) throws VictoriaException
     {
         Tablero[p.x][p.y]=f;
-        Tablero[p.x][p.y].pos=p;
+        coordenadas q=f.getPos();
+        Tablero[p.x][p.y].setPos(p);
+        if(!q.equals(p))this.eliminarFichasComidas(q,p);
+        f.calcularDestinos(this);
+        System.out.print("Blancas= "+numBlancas+ "Negras= "+numNegras+"\n");
     }
 
     public String getTurno() {
@@ -96,37 +99,32 @@ public class Juego {
         this.hasCapturado = hasCapturado;
     }
    
-    public void modificarTablero(ArrayList<coordenadas> pointers) throws CapturadoException
+    public void modificarTablero(ArrayList<coordenadas> pointers) throws CapturadoException,VictoriaException
     {     
         coordenadas q = pointers.get(0);
         coordenadas p = pointers.get(1);
-        
-        this.getFichaAt(q).calcularDestinos(this);
-        
+          
         if(!this.getFichaAt(q).esValido(p)) { return; }
         
         if(this.getFichaAt(q).esCaptura(p)) { 
             
             this.setFichaAt(this.getFichaAt(q),p);
-            this.eliminarFichasComidas(q,p);
-            this.coronar();
-            this.getFichaAt(p).calcularDestinos(this);
             if(!this.getFichaAt(p).destinosCaptura.isEmpty())
             {
                throw new CapturadoException(p);  
             }
             this.changeTurno();
+            this.coronar();
         }
         else
         {
             this.setFichaAt(this.getFichaAt(q),p);
-            this.eliminarFichasComidas(q,p); 
-            this.coronar();
             this.changeTurno();
+            this.coronar();
         }   
     }
     
-    public void eliminarFichasComidas(coordenadas q,coordenadas p)
+    public void eliminarFichasComidas(coordenadas q,coordenadas p) throws VictoriaException
     {
         int m=Math.abs(q.x-p.x);
         coordenadas d=coordenadas.direccion(q,p);
@@ -135,12 +133,16 @@ public class Juego {
             try
             {
                 coordenadas aux = q.add(d.por(i));
-                this.setFichaAt(new Ficha(aux), aux);
+                Ficha faux = this.getFichaAt(aux);
+                if(faux instanceof Dama || faux instanceof Reina){
+                    if(this.getFichaAt(aux).getColor().equals("B") && i>0) numBlancas--;
+                    else if(this.getFichaAt(aux).getColor().equals("N") && i>0) numNegras--;
+                    this.setFichaAt(new Ficha(aux), aux);
+                    if(numBlancas==0) throw new VictoriaException("Ganan Negras");
+                    if(numNegras==0) throw new VictoriaException("Ganan Blancas");
+                }
             }
-            catch(Exception e)
-            {
-                
-            }
+            catch(FueraTableroException e){}
         }
     }
     
@@ -150,8 +152,9 @@ public class Juego {
         {
             coordenadas q = new coordenadas(0,i);
             coordenadas k = new coordenadas(7,i);
-            if(this.getFichaAt(q).getColor().equals("B")) this.setFichaAt(new Reina(q,"B"),q);
-            if(this.getFichaAt(k).getColor().equals("N")) this.setFichaAt(new Reina(k,"N"),k);
+            if(this.getFichaAt(q).getColor().equals("B")) Tablero[q.x][q.y]=new Reina(q,"B");
+            if(this.getFichaAt(k).getColor().equals("N")) Tablero[k.x][k.y]=new Reina(k,"N");
+            
         }
     }
 }

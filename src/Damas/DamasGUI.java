@@ -16,6 +16,7 @@ public class DamasGUI extends javax.swing.JFrame {
     public static ImageIcon DamaNegra;
     public static ImageIcon ReinaBlanca;
     public static ImageIcon ReinaNegra;
+    String Ganador;
     
     static
     {
@@ -49,8 +50,8 @@ public class DamasGUI extends javax.swing.JFrame {
     statusLabel.setSize(400, 40);
     statusLabel.setFont(statusLabel.getFont().deriveFont(20.0f));
     
-    setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-    
+    this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+  
     JPanel jTablero = new javax.swing.JPanel();
 
     jTablero.setLayout(new java.awt.GridLayout(8, 8));
@@ -73,7 +74,6 @@ public class DamasGUI extends javax.swing.JFrame {
         }
 
         c[row][col].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
-
         
         c[row][col].addMouseListener(new GuardarClick(this,new coordenadas(row,col)));
 
@@ -94,35 +94,37 @@ public class DamasGUI extends javax.swing.JFrame {
 }
                           
     public void actualizarPointer(coordenadas values) {
-        Ficha f;
+        Ficha aux;
         actualizarStatusLabel();
         
-        if(Pointers.isEmpty() && miPartida.getFichaAt(values).isEmpty())
-        {
+        if(Pointers.isEmpty() && miPartida.getFichaAt(values).isEmpty()){
             return;    
         }
        
         switch(Pointers.size()){
             
-            case 1: 
-                f=miPartida.getFichaAt(Pointers.get(0));
-                f.calcularDestinos(miPartida);
-                if((f.esValido(values) && !miPartida.isHasCapturado()) || (miPartida.isHasCapturado() && f.esValido(values) && f.esCaptura(values))){
-                    Pointers.add(values); 
-                    imprimirPointers();
-                }
-                else if(Pointers.get(0).equals(values) && !miPartida.isHasCapturado()) {
-                    Pointers.clear();
-                }
-                actualizarStatusLabel();
-                miPartida.getFichaAt(values).imprimirDestinos();  
-                break;
             case 0:
-                if(miPartida.isTurno(values))Pointers.add(values); 
+                if(miPartida.isTurno(values)){
+                    Pointers.add(values);
+                    actualizarStatusLabel();
+                    miPartida.getFichaAt(values).imprimirDestinos();
+                    actualizarDestinosLabels(values);
+                } 
+                break;
+            
+            case 1: 
+                aux=miPartida.getFichaAt(Pointers.get(0));
+                aux.calcularDestinos(miPartida);
+                if((aux.esValido(values) && !miPartida.isHasCapturado()) || (miPartida.isHasCapturado() && aux.esValido(values) && aux.esCaptura(values))){
+                    Pointers.add(values); 
+                }
+                else if(miPartida.getFichaAt(Pointers.get(0)).getColor().equals(miPartida.getFichaAt(values).getColor()) && !miPartida.isHasCapturado()) {
+                    actualizarLabels();
+                    Pointers.clear();
+                    Pointers.add(values);
+                    actualizarDestinosLabels(values);
+                }
                 actualizarStatusLabel();
-                miPartida.getFichaAt(values).calcularDestinos(miPartida);
-                miPartida.getFichaAt(values).imprimirDestinos(); 
-                //imprimirPointers();
                 break;
         }
         
@@ -133,18 +135,20 @@ public class DamasGUI extends javax.swing.JFrame {
                 Pointers.clear(); 
                 miPartida.setHasCapturado(false);
             }
-            catch(CapturadoException e){
+            catch(VictoriaException e1){
+                actualizarLabels();  
+                System.out.print("OSTIAAAAAA \n");
+                this.TerminarPrograma(e1.getMessage());
+            }
+            catch(CapturadoException e2){
                 miPartida.setHasCapturado(true);
-                System.out.print("CAPTURA!!!!!!!!!! \n");
                 Pointers.clear();
-                Pointers.add(e.getcoordenadas());
-                miPartida.getFichaAt(e.getcoordenadas()).calcularDestinos(miPartida);
-                miPartida.getFichaAt(e.getcoordenadas()).imprimirDestinos();
-                actualizarStatusLabel();
+                Pointers.add(e2.getcoordenadas());
             }
             finally{
                 actualizarLabels();  
                 actualizarStatusLabel();
+                if(!Pointers.isEmpty())actualizarDestinosLabels(Pointers.get(0));
             }            
         }   
     }
@@ -175,7 +179,8 @@ public class DamasGUI extends javax.swing.JFrame {
         for(int i=0;i<8;i++)
             {
                 for(int j=0;j<8;j++)
-                {
+                {   
+                    c[i][j].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
                     coordenadas aux = new coordenadas(i,j);
                     Ficha faux = miPartida.getFichaAt(aux);
                     
@@ -202,6 +207,48 @@ public class DamasGUI extends javax.swing.JFrame {
                 }  
             }    
     }    
+    
+    public void actualizarDestinosLabels(coordenadas p)
+    {   
+        actualizarLabels();
+        Ficha faux = miPartida.getFichaAt(p);
+        faux.calcularDestinos(miPartida);
+        int n = faux.destinos.size();
+        int m = faux.destinosCaptura.size();
+        int row,col;
+        if(!miPartida.isHasCapturado() && miPartida.getFichaAt(p).destinosCaptura.isEmpty())
+        {
+            for(int i = 0 ; i<n; i++)
+            {
+                row=faux.destinos.get(i).x;
+                col=faux.destinos.get(i).y;
+                c[row][col].setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
+            } 
+        }
+        else{
+            for(int i = 0 ; i<m; i++)
+            {
+                row=faux.destinosCaptura.get(i).x;
+                col=faux.destinosCaptura.get(i).y;
+                c[row][col].setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
+            }    
+        }
+    }
+    
+    private void TerminarPrograma(String str)
+    {
+        JOptionPane.showMessageDialog(
+        this,
+        str,
+        "",
+        JOptionPane.INFORMATION_MESSAGE
+        );
+
+        // Finalizar el programa después de mostrar el mensaje
+        this.dispose(); // Liberar los recursos de la ventana
+        System.exit(0); // Finalizar el programa
+        
+    }
 }
 
 
@@ -216,7 +263,7 @@ class GuardarClick extends MouseAdapter {
         this.p=p;
     }
             
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                D.actualizarPointer(p);
-            }
-        }
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+         D.actualizarPointer(p);
+    }
+}

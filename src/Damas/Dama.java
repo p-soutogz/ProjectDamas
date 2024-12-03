@@ -19,9 +19,10 @@ public class Dama extends Ficha{
       super(p);
       color=col;
   }
+  
   public Dama (Dama d)
     {
-        super(d.pos);
+        super(d.getPos());
         color=d.color;
     }
   
@@ -42,11 +43,11 @@ public class Dama extends Ficha{
         {
             try
             {
-            coordenadas q = this.pos.add(d[i]);
+            coordenadas q = this.getPos().add(d[i]);
             
             if(J.getFichaAt(q).isEmpty()) destinos.add(q);
                    
-            coordenadas q2 = this.pos.add(d[i].por(2));
+            coordenadas q2 = this.getPos().add(d[i].por(2));
             
             if(J.getFichaAt(q2).isEmpty() && J.getFichaAt(q).getColor().equals(this.Rival())) 
             {
@@ -60,15 +61,25 @@ public class Dama extends Ficha{
     }
   
   public boolean esValido(coordenadas p)
-    {  
-    int n = destinos.size();
-    for (int i = 0; i < n; i++)
     {
-        if (p.equals(destinos.get(i)))
+    for (int i = 0; i < destinosCaptura.size(); i++)
+    {
+        if (p.equals(destinosCaptura.get(i)))
         {
             return true;
         }
     }
+    if(destinosCaptura.isEmpty())
+    {
+        for (int i = 0; i < destinos.size(); i++)
+        {
+            if (p.equals(destinos.get(i)))
+            {
+            return true;
+            }
+        } 
+    }
+    
     return false;   
     }  
   
