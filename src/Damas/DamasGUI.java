@@ -73,7 +73,6 @@ public class DamasGUI extends javax.swing.JFrame {
         }
 
         c[row][col].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
-
         
         c[row][col].addMouseListener(new GuardarClick(this,new coordenadas(row,col)));
 
@@ -94,35 +93,30 @@ public class DamasGUI extends javax.swing.JFrame {
 }
                           
     public void actualizarPointer(coordenadas values) {
-        Ficha f;
+        Ficha aux;
         actualizarStatusLabel();
         
-        if(Pointers.isEmpty() && miPartida.getFichaAt(values).isEmpty())
-        {
+        if(Pointers.isEmpty() && miPartida.getFichaAt(values).isEmpty()){
             return;    
         }
        
         switch(Pointers.size()){
             
+            case 0:
+                if(miPartida.isTurno(values))Pointers.add(values); 
+                actualizarStatusLabel();
+                break;
+            
             case 1: 
-                f=miPartida.getFichaAt(Pointers.get(0));
-                f.calcularDestinos(miPartida);
-                if((f.esValido(values) && !miPartida.isHasCapturado()) || (miPartida.isHasCapturado() && f.esValido(values) && f.esCaptura(values))){
+                aux=miPartida.getFichaAt(Pointers.get(0));
+                aux.calcularDestinos(miPartida);
+                if((aux.esValido(values) && !miPartida.isHasCapturado()) || (miPartida.isHasCapturado() && aux.esValido(values) && aux.esCaptura(values))){
                     Pointers.add(values); 
-                    imprimirPointers();
                 }
                 else if(Pointers.get(0).equals(values) && !miPartida.isHasCapturado()) {
                     Pointers.clear();
                 }
                 actualizarStatusLabel();
-                miPartida.getFichaAt(values).imprimirDestinos();  
-                break;
-            case 0:
-                if(miPartida.isTurno(values))Pointers.add(values); 
-                actualizarStatusLabel();
-                miPartida.getFichaAt(values).calcularDestinos(miPartida);
-                miPartida.getFichaAt(values).imprimirDestinos(); 
-                //imprimirPointers();
                 break;
         }
         
@@ -135,11 +129,8 @@ public class DamasGUI extends javax.swing.JFrame {
             }
             catch(CapturadoException e){
                 miPartida.setHasCapturado(true);
-                System.out.print("CAPTURA!!!!!!!!!! \n");
                 Pointers.clear();
                 Pointers.add(e.getcoordenadas());
-                miPartida.getFichaAt(e.getcoordenadas()).calcularDestinos(miPartida);
-                miPartida.getFichaAt(e.getcoordenadas()).imprimirDestinos();
                 actualizarStatusLabel();
             }
             finally{

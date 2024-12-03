@@ -14,12 +14,13 @@ import excepciones.*;
 
 public class Juego {
     
-    Ficha[][] Tablero; 
-    ArrayList<Ficha> Blancas;
-    ArrayList<Ficha> Negras;
-    String turno;
+    private Ficha[][] Tablero; 
+    private int numBlancas;
+    private int numNegras;
+    private String turno;
     private boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
-            
+    private StringBuffer Historial; 
+    
     public Juego ()
     {    
         initComponets();    
@@ -30,8 +31,8 @@ public class Juego {
         turno = "B";
         hasCapturado = false;
         Tablero = new Ficha[8][8];
-        Blancas = new ArrayList<>();
-        Negras = new ArrayList<>();
+        numBlancas = 12; 
+        numNegras = 12;
            
         for (int i = 0; i < 8; i++)
         {
@@ -45,8 +46,7 @@ public class Juego {
         {
             for (int j = c % 2; j < 8; j += 2)
             {
-                Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
-                Negras.add(Tablero[i][j]);
+                Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
             }
             c++;
         }
@@ -55,8 +55,7 @@ public class Juego {
         {
             for (int j = c % 2; j < 8; j += 2)
             {
-                Tablero[i][j] = new Dama(new coordenadas(i,j),"B");
-                Blancas.add(Tablero[i][j]);
+                Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"B");
             }
             c++;
         }
@@ -71,7 +70,11 @@ public class Juego {
     public void setFichaAt(Ficha f,coordenadas p)
     {
         Tablero[p.x][p.y]=f;
-        Tablero[p.x][p.y].pos=p;
+        coordenadas q=f.getPos();
+        Tablero[p.x][p.y].setPos(p);
+        if(!q.equals(p))this.eliminarFichasComidas(q,p); 
+        f.calcularDestinos(this);
+        System.out.print("Blancas= "+numBlancas+ "Negras= "+numNegras+"\n");
     }
 
     public String getTurno() {
@@ -100,29 +103,24 @@ public class Juego {
     {     
         coordenadas q = pointers.get(0);
         coordenadas p = pointers.get(1);
-        
-        this.getFichaAt(q).calcularDestinos(this);
-        
+          
         if(!this.getFichaAt(q).esValido(p)) { return; }
         
         if(this.getFichaAt(q).esCaptura(p)) { 
             
             this.setFichaAt(this.getFichaAt(q),p);
-            this.eliminarFichasComidas(q,p);
-            this.coronar();
-            this.getFichaAt(p).calcularDestinos(this);
             if(!this.getFichaAt(p).destinosCaptura.isEmpty())
             {
                throw new CapturadoException(p);  
             }
             this.changeTurno();
+            this.coronar();
         }
         else
         {
             this.setFichaAt(this.getFichaAt(q),p);
-            this.eliminarFichasComidas(q,p); 
-            this.coronar();
             this.changeTurno();
+            this.coronar();
         }   
     }
     
@@ -135,12 +133,14 @@ public class Juego {
             try
             {
                 coordenadas aux = q.add(d.por(i));
-                this.setFichaAt(new Ficha(aux), aux);
+                Ficha faux = this.getFichaAt(aux);
+                if(faux instanceof Dama || faux instanceof Reina){
+                    if(this.getFichaAt(aux).getColor().equals("B") && i>0) numBlancas--;
+                    else if(this.getFichaAt(aux).getColor().equals("N") && i>0) numNegras--;
+                    this.setFichaAt(new Ficha(aux), aux);
+                }
             }
-            catch(Exception e)
-            {
-                
-            }
+            catch(Exception e){}
         }
     }
     

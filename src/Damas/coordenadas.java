@@ -39,7 +39,7 @@ public class coordenadas {
     }
     public coordenadas por (int l) {   return new coordenadas(this.x*l,this.y*l);}
     
-    public static coordenadas direccion (coordenadas p, coordenadas q)
+    public static coordenadas direccion (coordenadas p, coordenadas q) 
     {
         int m = Math.abs(q.x-p.x);
         return new coordenadas((q.x-p.x)/m,(q.y-p.y)/m);

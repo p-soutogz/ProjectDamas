@@ -24,7 +24,7 @@ public class Reina extends Ficha{
     }
     public Reina (Reina r)
     {
-        super(r.pos);
+        super(r.getPos());
         color=r.color;
     }
      public boolean isEmpty(){
@@ -47,11 +47,11 @@ public class Reina extends Ficha{
             for(int j=1;j<8;j++)
             {
                 try{
-                coordenadas q = this.pos.add(d[i].por(j));
+                coordenadas q = this.getPos().add(d[i].por(j));
             
                 if(J.getFichaAt(q).isEmpty()) destinos.add(q);
                    
-                coordenadas q2 = this.pos.add(d[i].por(j+1));
+                coordenadas q2 = this.getPos().add(d[i].por(j+1));
             
                 if((J.getFichaAt(q2).isEmpty() && J.getFichaAt(q).getColor().equals(this.Rival())) || (J.getFichaAt(q2).isEmpty() && auxBool)) 
                 {
