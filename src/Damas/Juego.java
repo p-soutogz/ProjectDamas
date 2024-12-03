@@ -67,12 +67,12 @@ public class Juego {
         return Tablero[p.x][p.y];
     }
     
-    public void setFichaAt(Ficha f,coordenadas p)
+    public void setFichaAt(Ficha f,coordenadas p) throws VictoriaException
     {
         Tablero[p.x][p.y]=f;
         coordenadas q=f.getPos();
         Tablero[p.x][p.y].setPos(p);
-        if(!q.equals(p))this.eliminarFichasComidas(q,p); 
+        if(!q.equals(p))this.eliminarFichasComidas(q,p);
         f.calcularDestinos(this);
         System.out.print("Blancas= "+numBlancas+ "Negras= "+numNegras+"\n");
     }
@@ -99,7 +99,7 @@ public class Juego {
         this.hasCapturado = hasCapturado;
     }
    
-    public void modificarTablero(ArrayList<coordenadas> pointers) throws CapturadoException
+    public void modificarTablero(ArrayList<coordenadas> pointers) throws CapturadoException,VictoriaException
     {     
         coordenadas q = pointers.get(0);
         coordenadas p = pointers.get(1);
@@ -124,7 +124,7 @@ public class Juego {
         }   
     }
     
-    public void eliminarFichasComidas(coordenadas q,coordenadas p)
+    public void eliminarFichasComidas(coordenadas q,coordenadas p) throws VictoriaException
     {
         int m=Math.abs(q.x-p.x);
         coordenadas d=coordenadas.direccion(q,p);
@@ -138,9 +138,11 @@ public class Juego {
                     if(this.getFichaAt(aux).getColor().equals("B") && i>0) numBlancas--;
                     else if(this.getFichaAt(aux).getColor().equals("N") && i>0) numNegras--;
                     this.setFichaAt(new Ficha(aux), aux);
+                    if(numBlancas==0) throw new VictoriaException("Ganan Negras");
+                    if(numNegras==0) throw new VictoriaException("Ganan Blancas");
                 }
             }
-            catch(Exception e){}
+            catch(FueraTableroException e){}
         }
     }
     
@@ -150,8 +152,9 @@ public class Juego {
         {
             coordenadas q = new coordenadas(0,i);
             coordenadas k = new coordenadas(7,i);
-            if(this.getFichaAt(q).getColor().equals("B")) this.setFichaAt(new Reina(q,"B"),q);
-            if(this.getFichaAt(k).getColor().equals("N")) this.setFichaAt(new Reina(k,"N"),k);
+            if(this.getFichaAt(q).getColor().equals("B")) Tablero[q.x][q.y]=new Reina(q,"B");
+            if(this.getFichaAt(k).getColor().equals("N")) Tablero[k.x][k.y]=new Reina(k,"N");
+            
         }
     }
 }

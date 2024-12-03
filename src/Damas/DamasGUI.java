@@ -16,6 +16,7 @@ public class DamasGUI extends javax.swing.JFrame {
     public static ImageIcon DamaNegra;
     public static ImageIcon ReinaBlanca;
     public static ImageIcon ReinaNegra;
+    String Ganador;
     
     static
     {
@@ -49,8 +50,8 @@ public class DamasGUI extends javax.swing.JFrame {
     statusLabel.setSize(400, 40);
     statusLabel.setFont(statusLabel.getFont().deriveFont(20.0f));
     
-    setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-    
+    this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+  
     JPanel jTablero = new javax.swing.JPanel();
 
     jTablero.setLayout(new java.awt.GridLayout(8, 8));
@@ -127,10 +128,15 @@ public class DamasGUI extends javax.swing.JFrame {
                 Pointers.clear(); 
                 miPartida.setHasCapturado(false);
             }
-            catch(CapturadoException e){
+            catch(VictoriaException e1){
+                actualizarLabels();  
+                System.out.print("OSTIAAAAAA \n");
+                this.TerminarPrograma(e1.getMessage());
+            }
+            catch(CapturadoException e2){
                 miPartida.setHasCapturado(true);
                 Pointers.clear();
-                Pointers.add(e.getcoordenadas());
+                Pointers.add(e2.getcoordenadas());
                 actualizarStatusLabel();
             }
             finally{
@@ -193,6 +199,21 @@ public class DamasGUI extends javax.swing.JFrame {
                 }  
             }    
     }    
+
+    private void TerminarPrograma(String str)
+    {
+        JOptionPane.showMessageDialog(
+        this,
+        str,
+        "",
+        JOptionPane.INFORMATION_MESSAGE
+        );
+
+        // Finalizar el programa después de mostrar el mensaje
+        this.dispose(); // Liberar los recursos de la ventana
+        System.exit(0); // Finalizar el programa
+        
+    }
 }
 
 
@@ -210,4 +231,4 @@ class GuardarClick extends MouseAdapter {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 D.actualizarPointer(p);
             }
-        }
+}

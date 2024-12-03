@@ -27,7 +27,7 @@ public class coordenadas {
         x=0;
         y=0;
     }
-    public coordenadas add (coordenadas p) throws Exception
+    public coordenadas add (coordenadas p) throws FueraTableroException
     {
         if(this.x+p.x<8 && 0<=this.x+p.x && this.y+p.y<8 && 0<=this.y+p.y)
         {
