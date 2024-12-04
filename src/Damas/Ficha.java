@@ -58,5 +58,14 @@ public class Ficha {
         if(this.getColor().equals("B")) return "N";
         return " ";
     }
+    
+    public String toString()
+    {
+        return "/"+pos.toString();
     }
+
+
+}
+
+
 

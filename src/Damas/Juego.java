@@ -13,26 +13,30 @@ import excepciones.*;
  */
 
 public class Juego {
-    
+   
     private Ficha[][] Tablero; 
     private int numBlancas;
     private int numNegras;
     private String turno;
+    private int numJugadas;
     private boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
-    private StringBuffer Historial; 
+    public StringBuffer Historial; 
     
     public Juego ()
     {    
-        initComponets();    
+        initComponets(); 
+        Historial.append(this.toString());
     }
     
     private void initComponets()
     {          
+        numJugadas=0;
         turno = "B";
         hasCapturado = false;
         Tablero = new Ficha[8][8];
         numBlancas = 12; 
         numNegras = 12;
+        Historial = new StringBuffer();
            
         for (int i = 0; i < 8; i++)
         {
@@ -74,9 +78,13 @@ public class Juego {
         Tablero[p.x][p.y].setPos(p);
         if(!q.equals(p))this.eliminarFichasComidas(q,p);
         f.calcularDestinos(this);
-        System.out.print("Blancas= "+numBlancas+ "Negras= "+numNegras+"\n");
     }
 
+    public void incrementarJugadas()
+    {
+        numJugadas++;
+    }
+            
     public String getTurno() {
         return turno;
     }
@@ -157,4 +165,27 @@ public class Juego {
             
         }
     }
+    
+    public String toString()
+    {
+        return numJugadas+"\n"+this.TableroToString()+turno+"\n"+numNegras+"\n"+numBlancas+"\n"+hasCapturado+"\n";
+    }
+    
+    private String TableroToString()
+    {
+        StringBuffer str = new StringBuffer();
+        
+        for(int i = 0; i<8; i++)
+        {
+            for(int j=0;j<8;j++)
+            {
+                str.append(Tablero[i][j].toString());
+            }
+            str.append("\n");
+        }
+        
+        return str.toString();
+    }
+    
+    
 }
