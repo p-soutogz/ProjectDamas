@@ -5,8 +5,14 @@ package Damas;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import static Damas.DamasGUI.Pointers;
+import static Damas.DamasGUI.miPartida;
 import java.util.ArrayList;
 import excepciones.*;
+import java.util.stream.Stream;
+import java.util.List;
+import java.util.Arrays;
+
 /**
  *
  * @author pablo
@@ -25,7 +31,6 @@ public class Juego {
     public Juego ()
     {    
         initComponets(); 
-        Historial.append(this.toString());
     }
     
     private void initComponets()
@@ -66,11 +71,45 @@ public class Juego {
         
     }
     
+    
+    public void copy(Juego J)
+    {
+       Tablero=J.getTablero();
+       numBlancas=J.numBlancas;
+       numNegras=J.numNegras;
+       turno=J.turno;
+       numJugadas=J.numJugadas;
+       hasCapturado=J.hasCapturado;
+       Historial=J.Historial;
+               
+    }
+
+    public Ficha[][] getTablero() {
+        return Tablero;
+    }
+
+    public int getNumBlancas() {
+        return numBlancas;
+    }
+
+    public int getNumNegras() {
+        return numNegras;
+    }
+
+    public int getNumJugadas() {
+        return numJugadas;
+    }
+
+    public StringBuffer getHistorial() {
+        return Historial;
+    }
+    
     public Ficha getFichaAt(coordenadas p)
     {
         return Tablero[p.x][p.y];
     }
     
+
     public void setFichaAt(Ficha f,coordenadas p) throws VictoriaException
     {
         Tablero[p.x][p.y]=f;
@@ -111,6 +150,7 @@ public class Juego {
     {     
         coordenadas q = pointers.get(0);
         coordenadas p = pointers.get(1);
+        this.getFichaAt(q).calcularDestinos(this);
           
         if(!this.getFichaAt(q).esValido(p)) { return; }
         
@@ -119,16 +159,19 @@ public class Juego {
             this.setFichaAt(this.getFichaAt(q),p);
             if(!this.getFichaAt(p).destinosCaptura.isEmpty())
             {
-               throw new CapturadoException(p);  
+                this.imprimirMovimiento(q, p);
+                throw new CapturadoException(p);  
             }
             this.changeTurno();
             this.coronar();
+            this.imprimirMovimiento(q, p);
         }
         else
         {
             this.setFichaAt(this.getFichaAt(q),p);
             this.changeTurno();
             this.coronar();
+            this.imprimirMovimiento(q, p);
         }   
     }
     
@@ -171,6 +214,11 @@ public class Juego {
         return numJugadas+"\n"+this.TableroToString()+turno+"\n"+numNegras+"\n"+numBlancas+"\n"+hasCapturado+"\n";
     }
     
+    public void imprimirMovimiento(coordenadas p, coordenadas q)
+    {
+        Historial.append(numJugadas+p.toString()+q.toString()+"\n");
+    }
+    
     private String TableroToString()
     {
         StringBuffer str = new StringBuffer();
@@ -185,6 +233,53 @@ public class Juego {
         }
         
         return str.toString();
+    }
+    
+    public void retoceder()
+    {
+        Juego J = new Juego();
+        int T = numJugadas-1;
+        System.out.print(T+"\n");
+        String his = this.Historial.toString();
+        coordenadas p,q;
+        ArrayList<coordenadas> points = new ArrayList<>();
+        int px,py,qx,qy;
+        List<String> lines = his.lines().toList();
+        String mov = new String();
+        int n = lines.size();
+        for(int i=0; i<T; i++)
+        {
+            mov=lines.get(i); 
+            px=mov.charAt(1)-'0';
+            py=mov.charAt(2)-'0';
+            qx=mov.charAt(3)-'0';
+            qy=mov.charAt(4)-'0';
+            p = new coordenadas(px,py);
+            q = new coordenadas(qx,qy);
+            points.add(p);
+            points.add(q);
+            try{
+                
+                J.modificarTablero(points);
+                points.clear(); 
+                J.setHasCapturado(false);
+            }
+            catch(VictoriaException e1){
+            }
+            catch(CapturadoException e2){
+                J.setHasCapturado(true);
+                points.clear();
+                points.add(e2.getcoordenadas());
+            }
+            finally{
+                J.incrementarJugadas();
+                System.out.print(J.TableroToString()+"\n");
+            }            
+        }
+        Pointers.clear();;
+        if(points.size()>0)Pointers.add(points.get(0));
+        if(points.size()>1)Pointers.add(points.get(1));
+        this.copy(J);
     }
     
     

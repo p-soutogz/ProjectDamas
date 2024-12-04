@@ -100,7 +100,7 @@ public class Dama extends Ficha{
   
   public String toString()
     {
-        return "D"+super.getPos().toString();
+        return "D";
     }
   
 }

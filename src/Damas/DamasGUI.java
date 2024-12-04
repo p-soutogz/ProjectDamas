@@ -11,6 +11,7 @@ public class DamasGUI extends javax.swing.JFrame {
     public static ArrayList<coordenadas> Pointers = new ArrayList<>();
     private JLabel[][] c; 
     private JLabel statusLabel;
+    private JButton retroButton;
     public static Juego miPartida = new Juego();
     public static ImageIcon DamaBlanca;
     public static ImageIcon DamaNegra;
@@ -36,10 +37,7 @@ public class DamasGUI extends javax.swing.JFrame {
        
     public DamasGUI() {
         
-        initComponents();
-
-        // Inicializar Pointers con arrays vacíos de tamaño 2
-             
+        initComponents();     
     }
     
     private void initComponents() {
@@ -47,8 +45,12 @@ public class DamasGUI extends javax.swing.JFrame {
     c = new javax.swing.JLabel[8][8];
     
     statusLabel = new JLabel("Pointers: []");
-    statusLabel.setSize(400, 40);
+    statusLabel.setSize(300, 40);
     statusLabel.setFont(statusLabel.getFont().deriveFont(20.0f));
+    
+    retroButton = new JButton("Retroceder");
+    //retroButton.setSize(40,40);
+    retroButton.setFont(statusLabel.getFont().deriveFont(20.0f));
     
     this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
   
@@ -81,10 +83,13 @@ public class DamasGUI extends javax.swing.JFrame {
     }
 }
 
+    retroButton.addMouseListener(new ButtonClick(this));
+    
     
     JPanel mainPanel = new JPanel(new BorderLayout());
     mainPanel.add(statusLabel, java.awt.BorderLayout.NORTH); 
     mainPanel.add(jTablero, java.awt.BorderLayout.CENTER); 
+    mainPanel.add(retroButton, java.awt.BorderLayout.NORTH);
     
    
     getContentPane().add(mainPanel);
@@ -149,8 +154,8 @@ public class DamasGUI extends javax.swing.JFrame {
                 actualizarStatusLabel();
                 if(!Pointers.isEmpty())actualizarDestinosLabels(Pointers.get(0));
                 miPartida.incrementarJugadas();
-                miPartida.Historial.append(miPartida.toString());
-                System.out.print(miPartida.Historial);
+                //miPartida.Historial.append(miPartida.toString());
+                //System.out.print(miPartida.Historial);
             }            
         }   
     }
@@ -260,5 +265,21 @@ class GuardarClick extends MouseAdapter {
             
     public void mouseClicked(java.awt.event.MouseEvent evt) {
          D.actualizarPointer(p);
+    }
+}
+
+class ButtonClick extends MouseAdapter {
+    
+    DamasGUI D;
+    
+    public ButtonClick (DamasGUI D)
+    {
+        this.D=D;
+    }
+    
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+         DamasGUI.miPartida.retoceder();
+         D.actualizarLabels();
+         D.actualizarStatusLabel();
     }
 }

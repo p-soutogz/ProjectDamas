@@ -53,7 +53,7 @@ public class coordenadas {
     
     public String toString()
     {
-        return "("+x+","+y+")";
+        return x+""+y;
     }
     
      

@@ -61,7 +61,7 @@ public class Ficha {
     
     public String toString()
     {
-        return "/"+pos.toString();
+        return "/";
     }
 
 

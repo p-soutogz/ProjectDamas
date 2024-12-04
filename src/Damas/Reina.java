@@ -98,7 +98,7 @@ public class Reina extends Ficha{
     
      public String toString()
     {
-        return "R"+super.getPos().toString();
+        return "R";
     }
     
 }
