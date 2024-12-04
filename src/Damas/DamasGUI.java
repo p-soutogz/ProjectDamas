@@ -137,7 +137,6 @@ public class DamasGUI extends javax.swing.JFrame {
             }
             catch(VictoriaException e1){
                 actualizarLabels();  
-                System.out.print("OSTIAAAAAA \n");
                 this.TerminarPrograma(e1.getMessage());
             }
             catch(CapturadoException e2){
@@ -149,17 +148,13 @@ public class DamasGUI extends javax.swing.JFrame {
                 actualizarLabels();  
                 actualizarStatusLabel();
                 if(!Pointers.isEmpty())actualizarDestinosLabels(Pointers.get(0));
+                miPartida.incrementarJugadas();
+                miPartida.Historial.append(miPartida.toString());
+                System.out.print(miPartida.Historial);
             }            
         }   
     }
-    
-    private void imprimirPointers() {
-        for (int i = 0; i < Pointers.size(); i++) {
-            coordenadas pointer = Pointers.get(i);
-            System.out.println("P" + (i + 1) + ": "+pointer.toString());
-        }
-    }
-    
+      
     private String PointersToString() {
         StringBuilder str = new StringBuilder();
         for (int i = 0; i < Pointers.size(); i++) {

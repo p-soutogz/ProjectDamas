@@ -96,4 +96,9 @@ public class Reina extends Ficha{
      
     public String getColor() { return color; }
     
+     public String toString()
+    {
+        return "R"+super.getPos().toString();
+    }
+    
 }
