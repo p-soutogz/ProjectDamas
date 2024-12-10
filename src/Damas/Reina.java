@@ -65,35 +65,7 @@ public class Reina extends Ficha{
             }
             auxBool=false;
         }
-    }
-  
-     
-    public boolean esValido(coordenadas p)
-    {  
-    int n = destinos.size();
-    for (int i = 0; i < n; i++)
-    {
-        if (p.equals(destinos.get(i)))
-        {
-            return true;
-        }
-    }
-    return false;   
-    }
-    
-    public boolean esCaptura(coordenadas p) {  
-      
-    int n = destinosCaptura.size();
-    for (int i = 0; i < n; i++)
-    {
-        if (p.equals(destinosCaptura.get(i)))
-        {
-            return true;
-        }
-    }
-    return false;   
-  }
-     
+    }   
     public String getColor() { return color; }
     
      public String toString()

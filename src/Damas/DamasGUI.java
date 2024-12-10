@@ -112,7 +112,7 @@ public class DamasGUI extends javax.swing.JFrame {
                 if(miPartida.isTurno(values)){
                     Pointers.add(values);
                     actualizarStatusLabel();
-                    miPartida.getFichaAt(values).imprimirDestinos();
+                    //miPartida.getFichaAt(values).imprimirDestinos();
                     actualizarDestinosLabels(values);
                 } 
                 break;
@@ -155,7 +155,8 @@ public class DamasGUI extends javax.swing.JFrame {
                 if(!Pointers.isEmpty())actualizarDestinosLabels(Pointers.get(0));
                 miPartida.incrementarJugadas();
                 //miPartida.Historial.append(miPartida.toString());
-                //System.out.print(miPartida.Historial);
+                System.out.print("////////////////"+"\n");
+                System.out.print(miPartida.Historial);
             }            
         }   
     }
@@ -281,5 +282,6 @@ class ButtonClick extends MouseAdapter {
          DamasGUI.miPartida.retoceder();
          D.actualizarLabels();
          D.actualizarStatusLabel();
+         if(!DamasGUI.Pointers.isEmpty())D.actualizarDestinosLabels(DamasGUI.Pointers.get(0));
     }
 }

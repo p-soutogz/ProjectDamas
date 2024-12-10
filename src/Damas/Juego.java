@@ -21,12 +21,15 @@ import java.util.Arrays;
 public class Juego {
    
     private Ficha[][] Tablero; 
+    private ArrayList<Ficha> Blancas;
+    private ArrayList<Ficha> Negras;
     private int numBlancas;
     private int numNegras;
     private String turno;
     private int numJugadas;
     private boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
     public StringBuffer Historial; 
+    private boolean hasCapturadoHistorial;//Sera un indicador para en la funcion retroceder ondocar que no hay que cambiar el turno;
     
     public Juego ()
     {    
@@ -38,10 +41,14 @@ public class Juego {
         numJugadas=0;
         turno = "B";
         hasCapturado = false;
+        hasCapturadoHistorial=false;
         Tablero = new Ficha[8][8];
         numBlancas = 12; 
         numNegras = 12;
         Historial = new StringBuffer();
+        Blancas = new ArrayList<>();
+        Negras = new ArrayList<>();
+
            
         for (int i = 0; i < 8; i++)
         {
@@ -56,6 +63,7 @@ public class Juego {
             for (int j = c % 2; j < 8; j += 2)
             {
                 Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
+                Negras.add(aux);
             }
             c++;
         }
@@ -65,6 +73,7 @@ public class Juego {
             for (int j = c % 2; j < 8; j += 2)
             {
                 Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"B");
+                Blancas.add(aux);
             }
             c++;
         }
@@ -110,14 +119,23 @@ public class Juego {
     }
     
 
-    public void setFichaAt(Ficha f,coordenadas p) throws VictoriaException
+    public void moveFicha(coordenadas p,coordenadas q) throws VictoriaException
     {
-        Tablero[p.x][p.y]=f;
-        coordenadas q=f.getPos();
-        Tablero[p.x][p.y].setPos(p);
-        if(!q.equals(p))this.eliminarFichasComidas(q,p);
-        f.calcularDestinos(this);
+        Ficha aux = this.getFichaAt(p);
+        Tablero[q.x][q.y]=aux;
+        Tablero[q.x][q.y].setPos(q);
+        this.setFicha(new Ficha(p), p);
+        if(!q.equals(p))this.eliminarFichasComidas(p,q);
+        aux.calcularDestinos(this);
     }
+    
+    public void setFicha(Ficha f,coordenadas p) 
+    {
+        Tablero[p.x][p.y]=f;      
+        Tablero[p.x][p.y].setPos(p);
+    }
+    
+    
 
     public void incrementarJugadas()
     {
@@ -155,23 +173,21 @@ public class Juego {
         if(!this.getFichaAt(q).esValido(p)) { return; }
         
         if(this.getFichaAt(q).esCaptura(p)) { 
-            
-            this.setFichaAt(this.getFichaAt(q),p);
+            this.moveFicha(q,p);
             if(!this.getFichaAt(p).destinosCaptura.isEmpty())
             {
-                this.imprimirMovimiento(q, p);
+                this.coronar();
                 throw new CapturadoException(p);  
             }
             this.changeTurno();
             this.coronar();
-            this.imprimirMovimiento(q, p);
         }
         else
         {
-            this.setFichaAt(this.getFichaAt(q),p);
+            this.moveFicha(q,p);
             this.changeTurno();
             this.coronar();
-            this.imprimirMovimiento(q, p);
+            //this.ImpFichas();
         }   
     }
     
@@ -179,22 +195,35 @@ public class Juego {
     {
         int m=Math.abs(q.x-p.x);
         coordenadas d=coordenadas.direccion(q,p);
-        for(int i=0; i<m; i++)
+        Historial.append(q.toString()+p.toString());
+        for(int i=1; i<m; i++)
         {
             try
             {
                 coordenadas aux = q.add(d.por(i));
                 Ficha faux = this.getFichaAt(aux);
                 if(faux instanceof Dama || faux instanceof Reina){
-                    if(this.getFichaAt(aux).getColor().equals("B") && i>0) numBlancas--;
-                    else if(this.getFichaAt(aux).getColor().equals("N") && i>0) numNegras--;
-                    this.setFichaAt(new Ficha(aux), aux);
+                    if(faux.getColor().equals("B") && i>0){
+                        numBlancas--;
+                        Blancas.remove(faux);
+                        if(faux instanceof Reina) Historial.append("RB"+aux.toString());
+                        if(faux instanceof Dama) Historial.append("DB"+aux.toString());
+                    }
+                    else if(this.getFichaAt(aux).getColor().equals("N") && i>0){
+                        Negras.remove(faux);
+                        numNegras--;
+                        if(faux instanceof Reina) Historial.append("RN"+aux.toString());
+                        if(faux instanceof Dama) Historial.append("DN"+aux.toString());
+                    }
+                    this.setFicha(new Ficha(aux), aux);
+               
                     if(numBlancas==0) throw new VictoriaException("Ganan Negras");
                     if(numNegras==0) throw new VictoriaException("Ganan Blancas");
                 }
             }
             catch(FueraTableroException e){}
         }
+        Historial.append("\n");
     }
     
     public void coronar()
@@ -203,8 +232,8 @@ public class Juego {
         {
             coordenadas q = new coordenadas(0,i);
             coordenadas k = new coordenadas(7,i);
-            if(this.getFichaAt(q).getColor().equals("B")) Tablero[q.x][q.y]=new Reina(q,"B");
-            if(this.getFichaAt(k).getColor().equals("N")) Tablero[k.x][k.y]=new Reina(k,"N");
+            if(this.getFichaAt(q).getColor().equals("B")) this.setFicha(new Reina(q,"B"), q);
+            if(this.getFichaAt(k).getColor().equals("N")) this.setFicha(new Reina(k,"N"), k);
             
         }
     }
@@ -237,50 +266,75 @@ public class Juego {
     
     public void retoceder()
     {
-        Juego J = new Juego();
-        int T = numJugadas-1;
-        System.out.print(T+"\n");
+        if(Historial.isEmpty()) return;
         String his = this.Historial.toString();
-        coordenadas p,q;
-        ArrayList<coordenadas> points = new ArrayList<>();
-        int px,py,qx,qy;
-        List<String> lines = his.lines().toList();
-        String mov = new String();
-        int n = lines.size();
-        for(int i=0; i<T; i++)
+        coordenadas p, q, aux;
+        int px, py, qx, qy, aux1,aux2;
+        List<String> lines = new ArrayList<>(his.lines().toList());
+        String mov = lines.get(lines.size() - 1);
+        String movAnterior;
+        
+        int T = (mov.length()/4);
+        px = mov.charAt(0)-'0';
+        py = mov.charAt(1)-'0';
+        qx = mov.charAt(2)-'0';
+        qy = mov.charAt(3)-'0';
+        p = new coordenadas(px,py);
+        q = new coordenadas(qx,qy);
+        Ficha faux = this.getFichaAt(q);
+        faux.setPos(p);
+        this.setFicha(faux, p);
+        this.setFicha(new Ficha(q), q);
+        int contador=1;
+        while(T>contador)
         {
-            mov=lines.get(i); 
-            px=mov.charAt(1)-'0';
-            py=mov.charAt(2)-'0';
-            qx=mov.charAt(3)-'0';
-            qy=mov.charAt(4)-'0';
-            p = new coordenadas(px,py);
-            q = new coordenadas(qx,qy);
-            points.add(p);
-            points.add(q);
-            try{
-                
-                J.modificarTablero(points);
-                points.clear(); 
-                J.setHasCapturado(false);
-            }
-            catch(VictoriaException e1){
-            }
-            catch(CapturadoException e2){
-                J.setHasCapturado(true);
-                points.clear();
-                points.add(e2.getcoordenadas());
-            }
-            finally{
-                J.incrementarJugadas();
-                System.out.print(J.TableroToString()+"\n");
-            }            
+            aux = new coordenadas(mov.charAt(contador*4+2)-'0',mov.charAt(contador*4+3)-'0');
+            if(mov.charAt(contador*4)=='D'&& mov.charAt(contador*4+1)=='B') this.setFicha(new Dama(aux,"B"), aux);
+            if(mov.charAt(contador*4)=='D'&& mov.charAt(contador*4+1)=='N') this.setFicha(new Dama(aux,"N"), aux);
+            if(mov.charAt(contador*4)=='R'&& mov.charAt(contador*4+1)=='B') this.setFicha(new Reina(aux,"B"), aux);
+            if(mov.charAt(contador*4)=='R'&& mov.charAt(contador*4+1)=='N') this.setFicha(new Reina(aux,"N"), aux);
+            contador++;
         }
-        Pointers.clear();;
-        if(points.size()>0)Pointers.add(points.get(0));
-        if(points.size()>1)Pointers.add(points.get(1));
-        this.copy(J);
+        
+        DamasGUI.Pointers.clear();
+        
+        if(!(mov.length()>4 && mov.charAt(5)!=turno.charAt(0))) {    
+            this.changeTurno();
+        }
+        
+        this.hasCapturado=false;
+        
+        if(lines.size()>=2) {
+            
+            movAnterior=lines.get(lines.size() - 2);
+            if(movAnterior.length()>4 && movAnterior.charAt(5)!=turno.charAt(0)){
+                this.hasCapturado=true;
+                DamasGUI.Pointers.add(p);
+            }
+                
+        }
+        lines.removeLast();
+        Historial = new StringBuffer(String.join("\n", lines)+"\n");
     }
     
+    public void ImpFichas()
+    {
+        System.out.print("\n Fichas Blancas: \n");
+        for(int i = 0; i< Blancas.size(); i++)
+        {
+            Blancas.get(i).toString();
+            System.out.print(i);
+
+        }
+        
+        System.out.print("\n Fichas Negras: \n");
+        
+        for(int i = 0; i< Negras.size(); i++)
+        {
+            System.out.print(i);
+            Negras.get(i).toString();
+        }
+        
+    }
     
 }

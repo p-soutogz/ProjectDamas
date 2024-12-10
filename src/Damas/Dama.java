@@ -60,42 +60,6 @@ public class Dama extends Ficha{
         }
     }
   
-  public boolean esValido(coordenadas p)
-    {
-    for (int i = 0; i < destinosCaptura.size(); i++)
-    {
-        if (p.equals(destinosCaptura.get(i)))
-        {
-            return true;
-        }
-    }
-    if(destinosCaptura.isEmpty())
-    {
-        for (int i = 0; i < destinos.size(); i++)
-        {
-            if (p.equals(destinos.get(i)))
-            {
-            return true;
-            }
-        } 
-    }
-    
-    return false;   
-    }  
-  
-  public boolean esCaptura(coordenadas p) {  
-      
-    int n = destinosCaptura.size();
-    for (int i = 0; i < n; i++)
-    {
-        if (p.equals(destinosCaptura.get(i)))
-        {
-            return true;
-        }
-    }
-    return false;   
-  }
-  
   public String getColor() { return color; }
   
   public String toString()

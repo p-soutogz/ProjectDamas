@@ -48,9 +48,40 @@ public class Ficha {
             System.out.print("Destinos="+destinos.toString()+"\n"+"Destinos de Captura="+destinosCaptura.toString()+"\n"+"Posicion ficha= "+this.pos.toString()+"\n");
         }
     }
-    public boolean esValido(coordenadas p) {  return true; }
+    public boolean esValido(coordenadas p){
+    for (int i = 0; i < destinosCaptura.size(); i++)
+    {
+        if (p.equals(destinosCaptura.get(i)))
+        {
+            return true;
+        }
+    }
+    if(destinosCaptura.isEmpty())
+    {
+        for (int i = 0; i < destinos.size(); i++)
+        {
+            if (p.equals(destinos.get(i)))
+            {
+            return true;
+            }
+        } 
+    }
     
-    public boolean esCaptura(coordenadas p) {  return false; }
+    return false;   
+    } 
+    
+    public boolean esCaptura(coordenadas p) {  
+      
+    int n = destinosCaptura.size();
+    for (int i = 0; i < n; i++)
+    {
+        if (p.equals(destinosCaptura.get(i)))
+        {
+            return true;
+        }
+    }
+    return false;   
+  }
     
     public String Rival ()
     {
@@ -61,7 +92,7 @@ public class Ficha {
     
     public String toString()
     {
-        return "/";
+        return "/"+pos.toString();
     }
 
 
