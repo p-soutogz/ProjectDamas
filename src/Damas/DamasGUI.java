@@ -11,6 +11,8 @@ public class DamasGUI extends javax.swing.JFrame {
     public static ArrayList<coordenadas> Pointers = new ArrayList<>();
     private JLabel[][] c; 
     private JLabel statusLabel;
+    private JButton retroButton;
+    private JButton menuButton;
     public static Juego miPartida = new Juego();
     public static ImageIcon DamaBlanca;
     public static ImageIcon DamaNegra;
@@ -36,10 +38,7 @@ public class DamasGUI extends javax.swing.JFrame {
        
     public DamasGUI() {
         
-        initComponents();
-
-        // Inicializar Pointers con arrays vacíos de tamaño 2
-             
+        initComponents();     
     }
     
     private void initComponents() {
@@ -47,8 +46,17 @@ public class DamasGUI extends javax.swing.JFrame {
     c = new javax.swing.JLabel[8][8];
     
     statusLabel = new JLabel("Pointers: []");
-    statusLabel.setSize(400, 40);
+    statusLabel.setSize(300, 40);
     statusLabel.setFont(statusLabel.getFont().deriveFont(20.0f));
+    
+    retroButton = new JButton("Retroceder");
+    //retroButton.setSize(40,40);
+    retroButton.setFont(statusLabel.getFont().deriveFont(20.0f));
+    retroButton.addMouseListener(new ButtonClick(this));
+    
+    menuButton = new JButton("Menu");
+    //retroButton.setSize(40,40);
+    menuButton.setFont(statusLabel.getFont().deriveFont(20.0f));
     
     this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
   
@@ -80,24 +88,27 @@ public class DamasGUI extends javax.swing.JFrame {
         jTablero.add(c[row][col]);  
     }
 }
-
-    
+ 
     JPanel mainPanel = new JPanel(new BorderLayout());
-    mainPanel.add(statusLabel, java.awt.BorderLayout.NORTH); 
+    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 3));
+    
+    buttonPanel.add(menuButton);
+    buttonPanel.add(retroButton);
+    buttonPanel.add(statusLabel);
+    
+    mainPanel.add(buttonPanel, java.awt.BorderLayout.NORTH); 
     mainPanel.add(jTablero, java.awt.BorderLayout.CENTER); 
     
-   
     getContentPane().add(mainPanel);
-
-    
     pack();
 }
                           
     public void actualizarPointer(coordenadas values) {
         Ficha aux;
+        Ficha aux2;
         actualizarStatusLabel();
         
-        if(Pointers.isEmpty() && miPartida.getFichaAt(values).isEmpty()){
+        if(Pointers.isEmpty() && miPartida.getFichaAt(values)==null){
             return;    
         }
        
@@ -107,18 +118,20 @@ public class DamasGUI extends javax.swing.JFrame {
                 if(miPartida.isTurno(values)){
                     Pointers.add(values);
                     actualizarStatusLabel();
-                    miPartida.getFichaAt(values).imprimirDestinos();
+                    //miPartida.getFichaAt(values).imprimirDestinos();
                     actualizarDestinosLabels(values);
                 } 
                 break;
             
             case 1: 
                 aux=miPartida.getFichaAt(Pointers.get(0));
+                aux2=miPartida.getFichaAt(values);
                 aux.calcularDestinos(miPartida);
-                if((aux.esValido(values) && !miPartida.isHasCapturado()) || (miPartida.isHasCapturado() && aux.esValido(values) && aux.esCaptura(values))){
+                if( (aux.esValido(values) && !aux.esCaptura(values) && !miPartida.puedesCapturar(aux)) || aux.esCaptura(values) || (miPartida.HasCapturado() && aux.esValido(values) && aux.esCaptura(values))){
                     Pointers.add(values); 
+                    break;
                 }
-                else if(miPartida.getFichaAt(Pointers.get(0)).getColor().equals(miPartida.getFichaAt(values).getColor()) && !miPartida.isHasCapturado()) {
+                else if(aux2!=null && aux.getColor().equals(aux2.getColor()) && !miPartida.HasCapturado()) {
                     actualizarLabels();
                     Pointers.clear();
                     Pointers.add(values);
@@ -143,13 +156,14 @@ public class DamasGUI extends javax.swing.JFrame {
                 miPartida.setHasCapturado(true);
                 Pointers.clear();
                 Pointers.add(e2.getcoordenadas());
+                if(!Pointers.isEmpty())actualizarDestinosLabels(Pointers.get(0));
             }
             finally{
                 actualizarLabels();  
                 actualizarStatusLabel();
-                if(!Pointers.isEmpty())actualizarDestinosLabels(Pointers.get(0));
-                miPartida.incrementarJugadas();
-                miPartida.Historial.append(miPartida.toString());
+                if(!Pointers.isEmpty()&& Pointers.get(0)!=null) actualizarDestinosLabels(Pointers.get(0));
+                //miPartida.Historial.append(miPartida.toString());
+                System.out.print("////////////////"+"\n");
                 System.out.print(miPartida.Historial);
             }            
         }   
@@ -178,40 +192,33 @@ public class DamasGUI extends javax.swing.JFrame {
                     c[i][j].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
                     coordenadas aux = new coordenadas(i,j);
                     Ficha faux = miPartida.getFichaAt(aux);
-                    
-                    if(faux.getColor().equals("N") && faux instanceof Dama) {
-                        c[i][j].setIcon(DamaNegra); 
-                        
-                    }
-                    else if(faux.getColor().equals("B") && faux instanceof Dama){
-                        c[i][j].setIcon(DamaBlanca);
-                        
-                    }
-                    else if(faux.getColor().equals("N") && faux instanceof Reina){
-                        c[i][j].setIcon(ReinaNegra);
-                        
-                    }
-                    else if(faux.getColor().equals("B") && faux instanceof Reina){
-                        //System.out.print("Ostiaaaaaa");
-                        c[i][j].setIcon(ReinaBlanca);
-                        
-                    }
-                    else {
-                        c[i][j].setIcon(null);   
+                    if(faux==null) c[i][j].setIcon(null);  
+                    else{
+                        if(faux!=null && faux.getColor().equals("N") && faux instanceof Dama) {
+                            c[i][j].setIcon(DamaNegra);   
+                        }
+                        else if(faux.getColor().equals("B") && faux instanceof Dama){
+                            c[i][j].setIcon(DamaBlanca);                       
+                        }
+                        else if(faux.getColor().equals("N") && faux instanceof Reina){
+                            c[i][j].setIcon(ReinaNegra);                       
+                        }
+                        else if(faux.getColor().equals("B") && faux instanceof Reina){
+                            c[i][j].setIcon(ReinaBlanca);                       
+                        }
                     }
                 }  
             }    
     }    
     
-    public void actualizarDestinosLabels(coordenadas p)
-    {   
+    public void actualizarDestinosLabels(coordenadas p){   
         actualizarLabels();
         Ficha faux = miPartida.getFichaAt(p);
         faux.calcularDestinos(miPartida);
         int n = faux.destinos.size();
         int m = faux.destinosCaptura.size();
         int row,col;
-        if(!miPartida.isHasCapturado() && miPartida.getFichaAt(p).destinosCaptura.isEmpty())
+        if(!miPartida.HasCapturado() && !miPartida.puedesCapturar(faux))
         {
             for(int i = 0 ; i<n; i++)
             {
@@ -247,6 +254,8 @@ public class DamasGUI extends javax.swing.JFrame {
 }
 
 
+//Implementacion de los liseners
+
 class GuardarClick extends MouseAdapter {
     
     DamasGUI D;
@@ -260,5 +269,22 @@ class GuardarClick extends MouseAdapter {
             
     public void mouseClicked(java.awt.event.MouseEvent evt) {
          D.actualizarPointer(p);
+    }
+}
+
+class ButtonClick extends MouseAdapter {
+    
+    DamasGUI D;
+    
+    public ButtonClick (DamasGUI D)
+    {
+        this.D=D;
+    }
+    
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+         DamasGUI.miPartida.retoceder();
+         D.actualizarLabels();
+         D.actualizarStatusLabel();
+         if(!DamasGUI.Pointers.isEmpty())D.actualizarDestinosLabels(DamasGUI.Pointers.get(0));
     }
 }

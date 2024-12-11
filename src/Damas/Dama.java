@@ -15,21 +15,12 @@ public class Dama extends Ficha{
     
     String color;
     
-  public Dama(coordenadas p,String col){
-      super(p);
-      color=col;
-  }
-  
-  public Dama (Dama d)
-    {
-        super(d.getPos());
-        color=d.color;
+    public Dama(coordenadas p,String col){
+        super(p);
+        color=col;
     }
-  
-  public boolean isEmpty() { return false; }
-  
-  public void calcularDestinos(Juego J) 
-    {
+
+    public void calcularDestinos(Juego J) {
         destinos.clear();
         destinosCaptura.clear();
         
@@ -43,13 +34,13 @@ public class Dama extends Ficha{
         {
             try
             {
-            coordenadas q = this.getPos().add(d[i]);
+            coordenadas q = this.getPosicion().add(d[i]);
             
-            if(J.getFichaAt(q).isEmpty()) destinos.add(q);
+            if(J.getFichaAt(q)==null) destinos.add(q);
                    
-            coordenadas q2 = this.getPos().add(d[i].por(2));
+            coordenadas q2 = this.getPosicion().add(d[i].por(2));
             
-            if(J.getFichaAt(q2).isEmpty() && J.getFichaAt(q).getColor().equals(this.Rival())) 
+            if(J.getFichaAt(q2)==null && J.getFichaAt(q)!=null && J.getFichaAt(q).getColor().equals(this.Rival())) 
             {
                 destinos.add(q2);
                 destinosCaptura.add(q2);
@@ -60,47 +51,10 @@ public class Dama extends Ficha{
         }
     }
   
-  public boolean esValido(coordenadas p)
-    {
-    for (int i = 0; i < destinosCaptura.size(); i++)
-    {
-        if (p.equals(destinosCaptura.get(i)))
-        {
-            return true;
-        }
-    }
-    if(destinosCaptura.isEmpty())
-    {
-        for (int i = 0; i < destinos.size(); i++)
-        {
-            if (p.equals(destinos.get(i)))
-            {
-            return true;
-            }
-        } 
-    }
-    
-    return false;   
-    }  
+    public String getColor() { return color; }
   
-  public boolean esCaptura(coordenadas p) {  
-      
-    int n = destinosCaptura.size();
-    for (int i = 0; i < n; i++)
-    {
-        if (p.equals(destinosCaptura.get(i)))
-        {
-            return true;
-        }
-    }
-    return false;   
-  }
-  
-  public String getColor() { return color; }
-  
-  public String toString()
-    {
-        return "D"+super.getPos().toString();
+    public String toString(){
+        return "D";
     }
   
 }
