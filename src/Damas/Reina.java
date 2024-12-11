@@ -60,7 +60,7 @@ public class Reina extends Ficha{
     public String getColor() { return color; }
     
     public String toString(){
-        return "R";
+        return "R"+super.getPosicion().toString()+" ";
     }
     
 }

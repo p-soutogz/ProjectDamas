@@ -8,6 +8,9 @@ package Damas;
 import java.util.ArrayList;
 import excepciones.*;
 import java.util.List;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.*;
 
 /**
  *
@@ -19,8 +22,8 @@ public class Juego {
     private Ficha[][] Tablero; 
     private ArrayList<Ficha> Blancas;
     private ArrayList<Ficha> Negras;
-    private String turno;
-    private boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
+    public String turno;
+    public boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
     public StringBuffer Historial; 
     
     public Juego ()
@@ -36,20 +39,12 @@ public class Juego {
         Historial = new StringBuffer();
         Blancas = new ArrayList<>();
         Negras = new ArrayList<>();
- 
-        for (int i = 0; i < 8; i++)
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                Tablero[i][j] = null;
-            }
-        }
         int c = 1;
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 3; i++)
         {
             for (int j = c % 2; j < 8; j += 2)
             {
-                Ficha aux = Tablero[i][j] = new Reina(new coordenadas(i,j),"N");
+                Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
                 Negras.add(aux);
             }
             c++;
@@ -63,27 +58,9 @@ public class Juego {
                 Blancas.add(aux);
             }
             c++;
-        }
-        
+        }  
     }
-    
-    public void copy(Juego J)
-    {
-       Tablero=J.getTablero();
-       turno=J.turno;
-       hasCapturado=J.hasCapturado;
-       Historial=J.Historial;
-               
-    }
-
-    public Ficha[][] getTablero() {
-        return Tablero;
-    }
-
-    public StringBuffer getHistorial() {
-        return Historial;
-    }
-    
+      
     public Ficha getFichaAt(coordenadas p)
     {
         return Tablero[p.x][p.y];
@@ -217,20 +194,134 @@ public class Juego {
         }
     }
     
-    private String TableroToString()
+    public void GuardarPartida()
     {
         StringBuffer str = new StringBuffer();
+        String archivo = "partida1.txt";
         
-        for(int i = 0; i<8; i++)
+        str.append(Historial+"\n");
+        
+        str.append(turno+"\n");
+        
+        if(hasCapturado)str.append("T"+DamasGUI.Pointers.get(0).toString()+"\n");
+        else str.append("F"+"\n");
+        
+        for(int i = 0; i<Blancas.size(); i++)
         {
-            for(int j=0;j<8;j++)
-            {
-                str.append(Tablero[i][j].toString());
-            }
-            str.append("\n");
+           str.append(Blancas.get(i).toString()+"\n");
+        }
+        for(int i = 0; i<Negras.size(); i++)
+        {
+           str.append(Negras.get(i).toString()+"\n");
         }
         
-        return str.toString();
+        File directorio = new File("PartidasGuardadas");
+        File archivoNuevo = new File(directorio,archivo);
+        try {
+            // Crear el archivo si no existe
+            if (!archivoNuevo.exists()) {
+                if (archivoNuevo.createNewFile()) {
+                    System.out.println("Archivo creado: " + archivoNuevo.getAbsolutePath());
+                } else {
+                    System.out.println("No se pudo crear el archivo.");
+                    return;
+                }
+            }
+
+            // Escribir en el archivo
+            try (FileWriter escritor = new FileWriter(archivoNuevo)) {
+                escritor.write(str.toString());
+                System.out.println("Contenido escrito en el archivo.");
+            }
+
+        } catch (IOException e) {
+            System.out.println("Ocurrió un error: " + e.getMessage());
+        }
+    }
+          
+    public void CargarPartida(){
+        
+        Tablero=new Ficha[8][8];
+        
+        Blancas.clear();
+        Negras.clear();
+        
+        List<String> lines=new ArrayList<>();
+        
+        File archivo = new File("PartidasGuardadas\\partida1.txt");
+
+        // Verificar si el archivo existe
+        if (!archivo.exists()) {
+            System.out.println("El archivo no existe: " + archivo.getAbsolutePath());
+            return;
+        }
+
+        try (BufferedReader lector = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+            System.out.println("Contenido del archivo (omitiendo líneas vacías):");
+
+            // Leer línea por línea
+            while ((linea = lector.readLine()) != null) {
+                if (!linea.trim().isEmpty()) {
+                 // Procesa directamente cada línea en lugar de acumular todas
+                    System.out.println(linea);
+                    lines.add(linea);
+                }
+            }
+            
+
+        } catch (IOException e) {
+            System.out.println("Ocurrió un error al leer el archivo: " + e.getMessage());
+        }
+        
+        int i=0;
+        while(!(lines.get(i).endsWith("N")||lines.get(i).endsWith("B")))
+        {
+            Historial.append(lines.get(i)+"\n");
+            i++;
+        }
+        System.out.print(Historial);
+        
+        if(lines.get(i).charAt(0)=='N')turno="N";
+        else turno="B";
+        
+        i++;
+        System.out.print(turno+"\n");
+        if(lines.get(i).equals("F"))hasCapturado=false;
+        else{
+            hasCapturado=false;
+            DamasGUI.Pointers.clear();
+            DamasGUI.Pointers.add(new coordenadas(lines.get(i).charAt(1)-'0',lines.get(i).charAt(2)-'0'));
+        }
+        i++;
+        
+        while(i<lines.size()-2){
+            if(lines.get(i).charAt(0)=='D' && lines.get(i).charAt(1)=='B'){
+                Blancas.add(new Dama(new coordenadas(lines.get(i).charAt(2)-'0',lines.get(i).charAt(3)-'0'),"B"));
+            }
+            else if(lines.get(i).charAt(0)=='R' && lines.get(i).charAt(1)=='B'){       
+                Blancas.add(new Reina(new coordenadas(lines.get(i).charAt(2)-'0',lines.get(i).charAt(3)-'0'),"B"));
+            }
+            else if(lines.get(i).charAt(0)=='D' && lines.get(i).charAt(1)=='N'){
+                Negras.add(new Dama(new coordenadas(lines.get(i).charAt(2)-'0',lines.get(i).charAt(3)-'0'),"N"));
+            }
+            else if(lines.get(i).charAt(0)=='R' && lines.get(i).charAt(1)=='N'){ 
+                Negras.add(new Reina(new coordenadas(lines.get(i).charAt(2)-'0',lines.get(i).charAt(3)-'0'),"N"));
+            }
+            i++;      
+        }
+        for(i=0;i<Blancas.size();i++){
+            setFicha(Blancas.get(i), Blancas.get(i).getPosicion());
+        }
+        for(i=0;i<Negras.size();i++){
+            setFicha(Negras.get(i), Negras.get(i).getPosicion());
+        }
+        DamasGUI.Pointers.clear();
+        //if(turno.equals("N"))DamasGUI.Pointers.add(Negras.getLast().getPosicion());
+        //if(turno.equals("B"))DamasGUI.Pointers.add(Negras.getLast().getPosicion());
+        
+        ImpFichas();
+           
     }
     
     public void retoceder()
@@ -303,5 +394,24 @@ public class Juego {
             return false;
         }
     }
+    
+    public void ImpFichas()
+    {
+        System.out.print("\n Fichas Blancas: \n");
+        for(int i = 0; i< Blancas.size(); i++)
+        {
+            System.out.print(Blancas.get(i).toString());
+        }
+        
+        System.out.print("\n Fichas Negras: \n");
+        
+        for(int i = 0; i< Negras.size(); i++)
+        {
+            System.out.print(Negras.get(i).toString());
+
+        }
+        
+    }
+    
     
 }
