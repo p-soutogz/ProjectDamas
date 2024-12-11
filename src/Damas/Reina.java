@@ -16,22 +16,12 @@ public class Reina extends Ficha{
  
     String color;
     
-    public Reina (coordenadas p,String col)
-    {
+    public Reina (coordenadas p,String col){
         super(p);
         color=col;
-        
     }
-    public Reina (Reina r)
-    {
-        super(r.getPos());
-        color=r.color;
-    }
-     public boolean isEmpty(){
-        return false;
-    }
-     public void calcularDestinos(Juego J) 
-    {
+  
+    public void calcularDestinos(Juego J) {
         destinos.clear();
         destinosCaptura.clear();
         boolean auxBool = false;
@@ -47,13 +37,13 @@ public class Reina extends Ficha{
             for(int j=1;j<8;j++)
             {
                 try{
-                coordenadas q = this.getPos().add(d[i].por(j));
+                coordenadas q = this.getPosicion().add(d[i].por(j));
             
-                if(J.getFichaAt(q).isEmpty()) destinos.add(q);
+                if(J.getFichaAt(q)==null) destinos.add(q);
                    
-                coordenadas q2 = this.getPos().add(d[i].por(j+1));
+                coordenadas q2 = this.getPosicion().add(d[i].por(j+1));
             
-                if((J.getFichaAt(q2).isEmpty() && J.getFichaAt(q).getColor().equals(this.Rival())) || (J.getFichaAt(q2).isEmpty() && auxBool)) 
+                if((J.getFichaAt(q2)==null && J.getFichaAt(q)!=null && J.getFichaAt(q).getColor().equals(this.Rival())) || (J.getFichaAt(q2)==null && auxBool)) 
                 {
                     destinos.add(q2);
                     destinosCaptura.add(q2);
@@ -66,10 +56,10 @@ public class Reina extends Ficha{
             auxBool=false;
         }
     }   
+    
     public String getColor() { return color; }
     
-     public String toString()
-    {
+    public String toString(){
         return "R";
     }
     
