@@ -84,9 +84,7 @@ public abstract class Ficha {
         return " ";
     }
     
-    public String toString(){
-        return "/"+posicion.toString();
-    }
+    public abstract String toString();
     
     public boolean equals(Object obj) {
         if (this == obj) return true; // Compara si son la misma referencia

@@ -54,7 +54,7 @@ public class Dama extends Ficha{
     public String getColor() { return color; }
   
     public String toString(){
-        return "D";
+        return "D"+this.getColor()+super.getPosicion().toString()+" ";
     }
   
 }

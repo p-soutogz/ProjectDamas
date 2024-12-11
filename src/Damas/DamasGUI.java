@@ -12,26 +12,26 @@ public class DamasGUI extends javax.swing.JFrame {
     private JLabel[][] c; 
     private JLabel statusLabel;
     private JButton retroButton;
-    private JButton menuButton;
+    private JButton CargarButton;
+    private JButton GuardarButton;
     public static Juego miPartida = new Juego();
     public static ImageIcon DamaBlanca;
     public static ImageIcon DamaNegra;
     public static ImageIcon ReinaBlanca;
     public static ImageIcon ReinaNegra;
-    String Ganador;
     
     static
     {
-    DamaBlanca = new ImageIcon("C:/Users/pablo/Desktop/Iconos damas/dama blanca.png");
+    DamaBlanca = new ImageIcon("Iconos damas/dama blanca.png");
     Image image = DamaBlanca.getImage();
     DamaBlanca = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
-    DamaNegra = new ImageIcon("C:/Users/pablo/Desktop/Iconos damas/dama negra.png");
+    DamaNegra = new ImageIcon("Iconos damas/dama negra.png");
     image = DamaNegra.getImage();
     DamaNegra = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
-    ReinaBlanca = new ImageIcon("C:/Users/pablo/Desktop/Iconos damas/reina blanca.png");
+    ReinaBlanca = new ImageIcon("Iconos damas/reina blanca.png");
     image = ReinaBlanca.getImage();
     ReinaBlanca = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
-    ReinaNegra = new ImageIcon("C:/Users/pablo/Desktop/Iconos damas/reina negra.png");
+    ReinaNegra = new ImageIcon("Iconos damas/reina negra.png");
     image = ReinaNegra.getImage();
     ReinaNegra = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
     }
@@ -46,17 +46,19 @@ public class DamasGUI extends javax.swing.JFrame {
     c = new javax.swing.JLabel[8][8];
     
     statusLabel = new JLabel("Pointers: []");
-    statusLabel.setSize(300, 40);
     statusLabel.setFont(statusLabel.getFont().deriveFont(20.0f));
     
     retroButton = new JButton("Retroceder");
-    //retroButton.setSize(40,40);
     retroButton.setFont(statusLabel.getFont().deriveFont(20.0f));
-    retroButton.addMouseListener(new ButtonClick(this));
+    retroButton.addMouseListener(new retroButtonClick(this));
     
-    menuButton = new JButton("Menu");
-    //retroButton.setSize(40,40);
-    menuButton.setFont(statusLabel.getFont().deriveFont(20.0f));
+    CargarButton = new JButton("Cargar");
+    CargarButton.addMouseListener(new CargarButtonClick(this));
+    CargarButton.setFont(statusLabel.getFont().deriveFont(20.0f));
+    
+    GuardarButton = new JButton("Guardar");
+    GuardarButton.addMouseListener(new GuardarButtonClick(this));
+    GuardarButton.setFont(statusLabel.getFont().deriveFont(20.0f));
     
     this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
   
@@ -90,9 +92,10 @@ public class DamasGUI extends javax.swing.JFrame {
 }
  
     JPanel mainPanel = new JPanel(new BorderLayout());
-    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 3));
+    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 3));
     
-    buttonPanel.add(menuButton);
+    buttonPanel.add(GuardarButton);
+    buttonPanel.add(CargarButton);
     buttonPanel.add(retroButton);
     buttonPanel.add(statusLabel);
     
@@ -108,17 +111,12 @@ public class DamasGUI extends javax.swing.JFrame {
         Ficha aux2;
         actualizarStatusLabel();
         
-        if(Pointers.isEmpty() && miPartida.getFichaAt(values)==null){
-            return;    
-        }
-       
         switch(Pointers.size()){
             
             case 0:
                 if(miPartida.isTurno(values)){
                     Pointers.add(values);
                     actualizarStatusLabel();
-                    //miPartida.getFichaAt(values).imprimirDestinos();
                     actualizarDestinosLabels(values);
                 } 
                 break;
@@ -272,11 +270,11 @@ class GuardarClick extends MouseAdapter {
     }
 }
 
-class ButtonClick extends MouseAdapter {
+class retroButtonClick extends MouseAdapter {
     
     DamasGUI D;
     
-    public ButtonClick (DamasGUI D)
+    public retroButtonClick (DamasGUI D)
     {
         this.D=D;
     }
@@ -286,5 +284,35 @@ class ButtonClick extends MouseAdapter {
          D.actualizarLabels();
          D.actualizarStatusLabel();
          if(!DamasGUI.Pointers.isEmpty())D.actualizarDestinosLabels(DamasGUI.Pointers.get(0));
+    }
+}
+
+class CargarButtonClick extends MouseAdapter {
+    
+    DamasGUI D;
+    
+    public CargarButtonClick (DamasGUI D)
+    {
+        this.D=D;
+    }
+    
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+         DamasGUI.miPartida.CargarPartida();
+         D.actualizarLabels();
+         D.actualizarStatusLabel();
+    }
+}
+
+class GuardarButtonClick extends MouseAdapter {
+    
+    DamasGUI D;
+    
+    public GuardarButtonClick (DamasGUI D)
+    {
+        this.D=D;
+    }
+    
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+         DamasGUI.miPartida.GuardarPartida();
     }
 }
