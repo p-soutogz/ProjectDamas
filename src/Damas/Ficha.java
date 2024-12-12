@@ -1,14 +1,8 @@
 package Damas;
 
 import java.util.Objects;
-
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 import java.util.ArrayList;
+
 /**
  *
  * @author pablo
@@ -16,8 +10,8 @@ import java.util.ArrayList;
 public abstract class Ficha {
     
     private coordenadas posicion;
-    ArrayList<coordenadas> destinosCaptura;
-    ArrayList<coordenadas> destinos;
+    protected ArrayList<coordenadas> destinosCaptura;
+    protected ArrayList<coordenadas> destinos;
     
     public Ficha(coordenadas p){
         posicion=p;
@@ -36,47 +30,32 @@ public abstract class Ficha {
     public abstract String getColor();
     
     public abstract void calcularDestinos(Juego J);
-    
-    public void imprimirDestinos(){
-        if(destinos!=null && !destinos.isEmpty())
-        {
-            System.out.print("Destinos="+destinos.toString()+"\n"+"Destinos de Captura="+destinosCaptura.toString()+"\n"+"Posicion ficha= "+this.posicion.toString()+"\n");
-        }
-    }
-    
-    public boolean esValido(coordenadas p){
-    for (int i = 0; i < destinosCaptura.size(); i++)
-    {
-        if (p.equals(destinosCaptura.get(i)))
-        {
-            return true;
-        }
-    }
-    if(destinosCaptura.isEmpty())
-    {
-        for (int i = 0; i < destinos.size(); i++)
-        {
-            if (p.equals(destinos.get(i)))
-            {
-            return true;
+     
+    public boolean esValido(coordenadas p){   
+        for (int i = 0; i < destinosCaptura.size(); i++){
+            if (p.equals(destinosCaptura.get(i))){
+                return true;
             }
-        } 
+        }
+        if(destinosCaptura.isEmpty()){
+            for (int i = 0; i < destinos.size(); i++){
+                if (p.equals(destinos.get(i))){
+                return true;
+                }
+            } 
     }
     
     return false;   
     } 
     
     public boolean esCaptura(coordenadas p) {    
-    int n = destinosCaptura.size();
-    for (int i = 0; i < n; i++)
-    {
-        if (p.equals(destinosCaptura.get(i)))
-        {
-            return true;
+        for (int i = 0; i < destinosCaptura.size(); i++){
+            if (p.equals(destinosCaptura.get(i))){
+                return true;
+            }
         }
+        return false;   
     }
-    return false;   
-  }
     
     public String Rival (){
         if(this.getColor().equals("N")) return "B";
@@ -99,8 +78,7 @@ public abstract class Ficha {
         // Genera un hash basado en las coordenadas y el color
         return Objects.hash(posicion);
     }
-
-
+    
 }
 
 

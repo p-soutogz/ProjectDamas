@@ -9,19 +9,22 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+/**
+ *
+ * @author pablo
+ */
+
 public class DamasGUI extends javax.swing.JFrame {
     
     public static ArrayList<coordenadas> Pointers = new ArrayList<>();
     private JLabel[][] c; 
     private JLabel statusLabel;
     private JButton AtrasButton;
-    private JButton CargarButton;
-    private JButton GuardarButton;
-    public static Juego miPartida = new Juego();
-    public static ImageIcon DamaBlanca;
-    public static ImageIcon DamaNegra;
-    public static ImageIcon ReinaBlanca;
-    public static ImageIcon ReinaNegra;
+    static Juego miPartida = new Juego();
+    private static ImageIcon DamaBlanca;
+    private static ImageIcon DamaNegra;
+    private static ImageIcon ReinaBlanca;
+    private static ImageIcon ReinaNegra;
     
     static
     {
@@ -189,9 +192,6 @@ public class DamasGUI extends javax.swing.JFrame {
                 actualizarLabels();  
                 actualizarStatusLabel();
                 if(!Pointers.isEmpty()&& Pointers.get(0)!=null) actualizarDestinosLabels(Pointers.get(0));
-                //miPartida.Historial.append(miPartida.toString());
-                System.out.print("////////////////"+"\n");
-                System.out.print(miPartida.Historial);
             }            
         }   
     }
@@ -299,7 +299,7 @@ class retroButtonClick extends MouseAdapter {
     }
     
     public void mouseClicked(java.awt.event.MouseEvent evt) {
-         DamasGUI.miPartida.retoceder();
+         D.miPartida.retoceder();
          D.actualizarLabels();
          D.actualizarStatusLabel();
          if(!DamasGUI.Pointers.isEmpty())D.actualizarDestinosLabels(DamasGUI.Pointers.get(0));

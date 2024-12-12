@@ -1,10 +1,5 @@
 package Damas;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 import java.util.ArrayList;
 import excepciones.*;
 import java.util.List;
@@ -22,9 +17,9 @@ public class Juego {
     private Ficha[][] Tablero; 
     private ArrayList<Ficha> Blancas;
     private ArrayList<Ficha> Negras;
-    public String turno;
-    public boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
-    public StringBuffer Historial; 
+    private String turno;
+    private boolean hasCapturado;//Sera un indicador que sera true cuando una dama haya comido una pieza siempre que pueda comer mas.
+    private StringBuffer Historial; 
     
     public Juego ()
     {    
@@ -39,21 +34,17 @@ public class Juego {
         Historial = new StringBuffer();
         Blancas = new ArrayList<>();
         Negras = new ArrayList<>();
+        
         int c = 1;
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = c % 2; j < 8; j += 2)
-            {
+        for (int i = 0; i < 3; i++){
+            for (int j = c % 2; j < 8; j += 2){
                 Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
                 Negras.add(aux);
             }
             c++;
         }
-
-        for (int i = 5; i < 8; i++)
-        {
-            for (int j = c % 2; j < 8; j += 2)
-            {
+        for (int i = 5; i < 8; i++){
+            for (int j = c % 2; j < 8; j += 2){
                 Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"B");
                 Blancas.add(aux);
             }
@@ -189,8 +180,7 @@ public class Juego {
                 this.setFicha(new Reina(k,"N"), k);
                 Historial.deleteCharAt(Historial.length()-1);
                 Historial.append("c\n");
-            }
-            
+            }    
         }
     }
     
@@ -313,13 +303,7 @@ public class Juego {
         }
         for(i=0;i<Negras.size();i++){
             setFicha(Negras.get(i), Negras.get(i).getPosicion());
-        }
-        
-        //if(turno.equals("N"))DamasGUI.Pointers.add(Negras.getLast().getPosicion());
-        //if(turno.equals("B"))DamasGUI.Pointers.add(Negras.getLast().getPosicion());
-        
-        ImpFichas();
-           
+        }   
     }
     
     public void nuevaPartida(){
@@ -396,24 +380,5 @@ public class Juego {
             return false;
         }
     }
-    
-    public void ImpFichas()
-    {
-        System.out.print("\n Fichas Blancas: \n");
-        for(int i = 0; i< Blancas.size(); i++)
-        {
-            System.out.print(Blancas.get(i).toString());
-        }
-        
-        System.out.print("\n Fichas Negras: \n");
-        
-        for(int i = 0; i< Negras.size(); i++)
-        {
-            System.out.print(Negras.get(i).toString());
-
-        }
-        
-    }
-    
     
 }
