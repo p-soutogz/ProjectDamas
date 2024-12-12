@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File; 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class DamasGUI extends javax.swing.JFrame {
     
     public static ArrayList<coordenadas> Pointers = new ArrayList<>();
     private JLabel[][] c; 
     private JLabel statusLabel;
-    private JButton retroButton;
+    private JButton AtrasButton;
     private JButton CargarButton;
     private JButton GuardarButton;
     public static Juego miPartida = new Juego();
@@ -22,18 +25,18 @@ public class DamasGUI extends javax.swing.JFrame {
     
     static
     {
-    DamaBlanca = new ImageIcon("Iconos damas/dama blanca.png");
+    DamaBlanca = new ImageIcon("Iconos damas/damablanca.png");
     Image image = DamaBlanca.getImage();
-    DamaBlanca = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
-    DamaNegra = new ImageIcon("Iconos damas/dama negra.png");
+    DamaBlanca = new ImageIcon(image.getScaledInstance(65, 65, Image.SCALE_SMOOTH));
+    DamaNegra = new ImageIcon("Iconos damas/damanegra.png");
     image = DamaNegra.getImage();
-    DamaNegra = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
-    ReinaBlanca = new ImageIcon("Iconos damas/reina blanca.png");
+    DamaNegra = new ImageIcon(image.getScaledInstance(65, 65, Image.SCALE_SMOOTH));
+    ReinaBlanca = new ImageIcon("Iconos damas/reinablanca.png");
     image = ReinaBlanca.getImage();
-    ReinaBlanca = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
-    ReinaNegra = new ImageIcon("Iconos damas/reina negra.png");
+    ReinaBlanca = new ImageIcon(image.getScaledInstance(65, 65, Image.SCALE_SMOOTH));
+    ReinaNegra = new ImageIcon("Iconos damas/reinanegra.png");
     image = ReinaNegra.getImage();
-    ReinaNegra = new ImageIcon(image.getScaledInstance(80, 80, Image.SCALE_SMOOTH));
+    ReinaNegra = new ImageIcon(image.getScaledInstance(65, 65, Image.SCALE_SMOOTH));
     }
        
     public DamasGUI() {
@@ -46,19 +49,47 @@ public class DamasGUI extends javax.swing.JFrame {
     c = new javax.swing.JLabel[8][8];
     
     statusLabel = new JLabel("Pointers: []");
-    statusLabel.setFont(statusLabel.getFont().deriveFont(20.0f));
+    statusLabel.setFont(new Font("Arial", Font.PLAIN, 20));
     
-    retroButton = new JButton("Retroceder");
-    retroButton.setFont(statusLabel.getFont().deriveFont(20.0f));
-    retroButton.addMouseListener(new retroButtonClick(this));
+    AtrasButton = new JButton("Atras");
+    AtrasButton.setFont(new Font("Arial", Font.PLAIN, 20));
+    AtrasButton.addMouseListener(new retroButtonClick(this));
+    // Configurar el menú
+    JMenuBar menuBar = new JMenuBar();
+    menuBar.setFont(new Font("Arial", Font.PLAIN, 20)); // Fuente más grande para la barra de menú
+    menuBar.setPreferredSize(new Dimension(100, 40)); // Aumenta la altura de la barra de menú
     
-    CargarButton = new JButton("Cargar");
-    CargarButton.addMouseListener(new CargarButtonClick(this));
-    CargarButton.setFont(statusLabel.getFont().deriveFont(20.0f));
+    JMenu archivoMenu = new JMenu("Menu");
+    archivoMenu.setFont(new Font("Arial", Font.PLAIN, 18)); // Fuente más grande para el menú
+
     
-    GuardarButton = new JButton("Guardar");
-    GuardarButton.addMouseListener(new GuardarButtonClick(this));
-    GuardarButton.setFont(statusLabel.getFont().deriveFont(20.0f));
+    JMenuItem guardarMenuItem = new JMenuItem("Guardar Partida");
+    guardarMenuItem.setFont(new Font("Arial", Font.PLAIN, 16)); // Fuente más grande para los elementos
+    guardarMenuItem.addActionListener(e -> {
+        // Acciones para el botón "Guardar"
+        new GuardarButtonClick(this).mouseClicked(null); // Llama al evento relacionado
+    });
+
+    JMenuItem cargarMenuItem = new JMenuItem("Cargar Partida");
+    cargarMenuItem.setFont(new Font("Arial", Font.PLAIN, 16)); // Fuente más grande para los elementos
+    cargarMenuItem.addActionListener(e -> {
+        // Acciones para el botón "Cargar"
+        new CargarButtonClick(this).mouseClicked(null); // Llama al evento relacionado
+    });
+    
+    JMenuItem nuevaPartidaMenuItem = new JMenuItem("Nueva Partida");
+    nuevaPartidaMenuItem.setFont(new Font("Arial", Font.PLAIN, 16)); // Fuente más grande para los elementos
+    nuevaPartidaMenuItem.addActionListener(e -> {
+        // Acciones para el botón "Cargar"
+        new NuevaPartidaButtonClick(this).mouseClicked(null); // Llama al evento relacionado
+    });
+    
+    archivoMenu.add(nuevaPartidaMenuItem);
+    archivoMenu.add(guardarMenuItem);
+    archivoMenu.add(cargarMenuItem);
+    menuBar.add(archivoMenu);
+
+    this.setJMenuBar(menuBar); // Establecer el menú en la ventana
     
     this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
   
@@ -78,15 +109,15 @@ public class DamasGUI extends javax.swing.JFrame {
         
         if ((row + col) % 2 == 0) {
                 c[row][col].setBackground(new Color(252, 239, 199)); 
-            
+
         } else {
             c[row][col].setBackground(new Color(120, 78, 24));
         }
 
         c[row][col].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
-        
         c[row][col].addMouseListener(new GuardarClick(this,new coordenadas(row,col)));
-
+        c[row][col].setHorizontalAlignment(JLabel.CENTER); 
+        c[row][col].setVerticalAlignment(JLabel.CENTER);
         jTablero.add(c[row][col]);  
     }
 }
@@ -94,9 +125,7 @@ public class DamasGUI extends javax.swing.JFrame {
     JPanel mainPanel = new JPanel(new BorderLayout());
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 3));
     
-    buttonPanel.add(GuardarButton);
-    buttonPanel.add(CargarButton);
-    buttonPanel.add(retroButton);
+    buttonPanel.add(AtrasButton);
     buttonPanel.add(statusLabel);
     
     mainPanel.add(buttonPanel, java.awt.BorderLayout.NORTH); 
@@ -166,19 +195,11 @@ public class DamasGUI extends javax.swing.JFrame {
             }            
         }   
     }
-      
-    private String PointersToString() {
-        StringBuilder str = new StringBuilder();
-        for (int i = 0; i < Pointers.size(); i++) {
-            str.append(Pointers.get(i).toString());
-            str.append("  ");
-        }
-        return str.toString();
-    }
-    
+       
     public void actualizarStatusLabel() {
         
-        statusLabel.setText("Pointers = "+this.PointersToString() + "Juegan: "+miPartida.getTurno());
+        if(miPartida.getTurno().equals("B"))statusLabel.setText( "Juegan Blancas");
+        else statusLabel.setText( "Juegan Negras");
     }
     
     public void actualizarLabels()
@@ -187,13 +208,13 @@ public class DamasGUI extends javax.swing.JFrame {
             {
                 for(int j=0;j<8;j++)
                 {   
-                    c[i][j].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
+                    c[i][j].setBorder(BorderFactory.createLineBorder(Color.BLACK));
                     coordenadas aux = new coordenadas(i,j);
                     Ficha faux = miPartida.getFichaAt(aux);
                     if(faux==null) c[i][j].setIcon(null);  
                     else{
                         if(faux!=null && faux.getColor().equals("N") && faux instanceof Dama) {
-                            c[i][j].setIcon(DamaNegra);   
+                            c[i][j].setIcon(DamaNegra);
                         }
                         else if(faux.getColor().equals("B") && faux instanceof Dama){
                             c[i][j].setIcon(DamaBlanca);                       
@@ -213,12 +234,10 @@ public class DamasGUI extends javax.swing.JFrame {
         actualizarLabels();
         Ficha faux = miPartida.getFichaAt(p);
         faux.calcularDestinos(miPartida);
-        int n = faux.destinos.size();
-        int m = faux.destinosCaptura.size();
         int row,col;
         if(!miPartida.HasCapturado() && !miPartida.puedesCapturar(faux))
         {
-            for(int i = 0 ; i<n; i++)
+            for(int i = 0 ; i<faux.destinos.size(); i++)
             {
                 row=faux.destinos.get(i).x;
                 col=faux.destinos.get(i).y;
@@ -226,7 +245,7 @@ public class DamasGUI extends javax.swing.JFrame {
             } 
         }
         else{
-            for(int i = 0 ; i<m; i++)
+            for(int i = 0 ; i<faux.destinosCaptura.size(); i++)
             {
                 row=faux.destinosCaptura.get(i).x;
                 col=faux.destinosCaptura.get(i).y;
@@ -296,10 +315,31 @@ class CargarButtonClick extends MouseAdapter {
         this.D=D;
     }
     
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-         DamasGUI.miPartida.CargarPartida();
-         D.actualizarLabels();
-         D.actualizarStatusLabel();
+     public void mouseClicked(java.awt.event.MouseEvent evt) {
+        // Crear un selector de archivos
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Seleccionar Partida Guardada");
+        
+        // Establecer el directorio predeterminado como la carpeta "partidas guardadas"
+        fileChooser.setCurrentDirectory(new File("PartidasGuardadas"));
+             
+        int userSelection = fileChooser.showOpenDialog(D);
+        
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToLoad = fileChooser.getSelectedFile();
+            String nombreArchivo = fileToLoad.getAbsolutePath();
+            
+            try {
+                DamasGUI.miPartida.CargarPartida(nombreArchivo);
+                D.actualizarLabels();
+                D.actualizarStatusLabel();
+                if (!DamasGUI.Pointers.isEmpty()) {
+                    D.actualizarDestinosLabels(DamasGUI.Pointers.get(0));
+                }   
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(D, "Error al cargar la partida: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 }
 
@@ -313,6 +353,32 @@ class GuardarButtonClick extends MouseAdapter {
     }
     
     public void mouseClicked(java.awt.event.MouseEvent evt) {
-         DamasGUI.miPartida.GuardarPartida();
+        // Mostrar un cuadro de diálogo para que el usuario introduzca el nombre del archivo
+        String nombreArchivo = JOptionPane.showInputDialog(D, "Introduce el nombre del archivo:", "Guardar Partida", JOptionPane.PLAIN_MESSAGE);
+        
+        // Comprobar si el usuario ha introducido un nombre y no ha cancelado el cuadro de diálogo
+        if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
+            DamasGUI.miPartida.GuardarPartida(nombreArchivo);
+            JOptionPane.showMessageDialog(D, "Partida guardada como " + nombreArchivo, "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(D, "Nombre de archivo no válido", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
+
+class NuevaPartidaButtonClick extends MouseAdapter {
+    
+    DamasGUI D;
+    
+    public NuevaPartidaButtonClick (DamasGUI D)
+    {
+        this.D=D;
+    }
+    
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        DamasGUI.miPartida.nuevaPartida();
+        D.actualizarLabels();
+        DamasGUI.Pointers.clear();
+    }
+}
+
