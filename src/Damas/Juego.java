@@ -28,10 +28,10 @@ public class Juego {
     
     public Juego ()
     {    
-        initComponets(); 
+        initComponents(); 
     }
     
-    private void initComponets()
+    private void initComponents()
     {          
         turno = "B";
         hasCapturado = false;
@@ -194,11 +194,10 @@ public class Juego {
         }
     }
     
-    public void GuardarPartida()
-    {
-        StringBuffer str = new StringBuffer();
-        String archivo = "partida1.txt";
-        
+    public void GuardarPartida(String archivo)
+    { 
+        StringBuffer str = new StringBuffer();  
+     
         str.append(Historial+"\n");
         
         str.append(turno+"\n");
@@ -239,16 +238,15 @@ public class Juego {
         }
     }
           
-    public void CargarPartida(){
+    public void CargarPartida(String partida){
         
         Tablero=new Ficha[8][8];
-        
         Blancas.clear();
         Negras.clear();
         
         List<String> lines=new ArrayList<>();
         
-        File archivo = new File("PartidasGuardadas\\partida1.txt");
+        File archivo = new File(partida);
 
         // Verificar si el archivo existe
         if (!archivo.exists()) {
@@ -289,13 +287,13 @@ public class Juego {
         System.out.print(turno+"\n");
         if(lines.get(i).equals("F"))hasCapturado=false;
         else{
-            hasCapturado=false;
+            hasCapturado=true;
             DamasGUI.Pointers.clear();
             DamasGUI.Pointers.add(new coordenadas(lines.get(i).charAt(1)-'0',lines.get(i).charAt(2)-'0'));
         }
         i++;
         
-        while(i<lines.size()-2){
+        while(i<lines.size()){
             if(lines.get(i).charAt(0)=='D' && lines.get(i).charAt(1)=='B'){
                 Blancas.add(new Dama(new coordenadas(lines.get(i).charAt(2)-'0',lines.get(i).charAt(3)-'0'),"B"));
             }
@@ -316,12 +314,16 @@ public class Juego {
         for(i=0;i<Negras.size();i++){
             setFicha(Negras.get(i), Negras.get(i).getPosicion());
         }
-        DamasGUI.Pointers.clear();
+        
         //if(turno.equals("N"))DamasGUI.Pointers.add(Negras.getLast().getPosicion());
         //if(turno.equals("B"))DamasGUI.Pointers.add(Negras.getLast().getPosicion());
         
         ImpFichas();
            
+    }
+    
+    public void nuevaPartida(){
+        initComponents();   
     }
     
     public void retoceder()
