@@ -32,7 +32,7 @@ public class Main {
             // Crear e inicializar la GUI
             DamasGUI gui = new DamasGUI();
             gui.actualizarStatusLabel();
-            gui.actualizarLabels();
+            gui.actualizarCasillas();
             gui.setVisible(true);
         }
     });
