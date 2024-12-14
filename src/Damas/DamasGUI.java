@@ -2,12 +2,11 @@ package Damas;
 
 import excepciones.*;
 import java.util.ArrayList;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File; 
-import javax.swing.JFileChooser;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
 
 /**
  *
@@ -17,17 +16,16 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class DamasGUI extends javax.swing.JFrame {
     
     public static ArrayList<coordenadas> Pointers = new ArrayList<>();
-    private JLabel[][] c; 
+    private JLabel[][] casillas; 
     private JLabel statusLabel;
     private JButton AtrasButton;
-    static Juego miPartida = new Juego();
+    static Partida miPartida = new Partida();
     private static ImageIcon DamaBlanca;
     private static ImageIcon DamaNegra;
     private static ImageIcon ReinaBlanca;
     private static ImageIcon ReinaNegra;
     
-    static
-    {
+    static{
     DamaBlanca = new ImageIcon("Iconos damas/damablanca.png");
     Image image = DamaBlanca.getImage();
     DamaBlanca = new ImageIcon(image.getScaledInstance(65, 65, Image.SCALE_SMOOTH));
@@ -42,14 +40,13 @@ public class DamasGUI extends javax.swing.JFrame {
     ReinaNegra = new ImageIcon(image.getScaledInstance(65, 65, Image.SCALE_SMOOTH));
     }
        
-    public DamasGUI() {
-        
+    public DamasGUI() {  
         initComponents();     
     }
     
     private void initComponents() {
     // Inicialización de los componentes
-    c = new javax.swing.JLabel[8][8];
+    casillas = new javax.swing.JLabel[8][8];
     
     statusLabel = new JLabel("Pointers: []");
     statusLabel.setFont(new Font("Arial", Font.PLAIN, 20));
@@ -57,6 +54,7 @@ public class DamasGUI extends javax.swing.JFrame {
     AtrasButton = new JButton("Atras");
     AtrasButton.setFont(new Font("Arial", Font.PLAIN, 20));
     AtrasButton.addMouseListener(new retroButtonClick(this));
+    
     // Configurar el menú
     JMenuBar menuBar = new JMenuBar();
     menuBar.setFont(new Font("Arial", Font.PLAIN, 20)); // Fuente más grande para la barra de menú
@@ -92,36 +90,37 @@ public class DamasGUI extends javax.swing.JFrame {
     archivoMenu.add(cargarMenuItem);
     menuBar.add(archivoMenu);
 
-    this.setJMenuBar(menuBar); // Establecer el menú en la ventana
+    this.setJMenuBar(menuBar); 
     
     this.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-  
+   
+    //Configuarar rl tablero de casillas
+    
     JPanel jTablero = new javax.swing.JPanel();
-
     jTablero.setLayout(new java.awt.GridLayout(8, 8));
     jTablero.setPreferredSize(new java.awt.Dimension(600, 600)); 
     jTablero.setBorder(BorderFactory.createLineBorder(Color.BLACK, 10));
-    
+  
     for (int i = 0; i < 8; i++) {
     for (int j = 0; j < 8; j++) {
-        final int row = i; 
-        final int col = j;
+        int row = i; 
+        int col = j;
 
-        c[row][col] = new javax.swing.JLabel();
-        c[row][col].setOpaque(true);
+        casillas[row][col] = new javax.swing.JLabel();
+        casillas[row][col].setOpaque(true);
         
         if ((row + col) % 2 == 0) {
-                c[row][col].setBackground(new Color(252, 239, 199)); 
+                casillas[row][col].setBackground(new Color(252, 239, 199)); 
 
         } else {
-            c[row][col].setBackground(new Color(120, 78, 24));
+            casillas[row][col].setBackground(new Color(120, 78, 24));
         }
 
-        c[row][col].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
-        c[row][col].addMouseListener(new GuardarClick(this,new coordenadas(row,col)));
-        c[row][col].setHorizontalAlignment(JLabel.CENTER); 
-        c[row][col].setVerticalAlignment(JLabel.CENTER);
-        jTablero.add(c[row][col]);  
+        casillas[row][col].setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.BLACK));
+        casillas[row][col].addMouseListener(new GuardarClick(this,new coordenadas(row,col)));
+        casillas[row][col].setHorizontalAlignment(JLabel.CENTER); 
+        casillas[row][col].setVerticalAlignment(JLabel.CENTER);
+        jTablero.add(casillas[row][col]);  
     }
 }
  
@@ -137,32 +136,34 @@ public class DamasGUI extends javax.swing.JFrame {
     getContentPane().add(mainPanel);
     pack();
 }
-                          
+    
+    //Funcion que ira recogiendo o ignorando los click sobre las casillas de tablero
     public void actualizarPointer(coordenadas values) {
-        Ficha aux;
-        Ficha aux2;
+        Ficha aux,aux2;
         actualizarStatusLabel();
-        
         switch(Pointers.size()){
-            
-            case 0:
+            case 0: 
+                //Si la primera casilla que seleccionas esta vacia ignoramos el click
                 if(miPartida.isTurno(values)){
                     Pointers.add(values);
                     actualizarStatusLabel();
                     actualizarDestinosLabels(values);
                 } 
                 break;
-            
-            case 1: 
+            case 1: // Ya tenemos seleccionada una ficha 
                 aux=miPartida.getFichaAt(Pointers.get(0));
                 aux2=miPartida.getFichaAt(values);
                 aux.calcularDestinos(miPartida);
-                if( (aux.esValido(values) && !aux.esCaptura(values) && !miPartida.puedesCapturar(aux)) || aux.esCaptura(values) || (miPartida.HasCapturado() && aux.esValido(values) && aux.esCaptura(values))){
+                //Para recojer el segundo click verificamos que se cumplen las condiciones para realizar un movimiento valido
+                if( (aux.esDestino(values) && !aux.esDestinoCaptura(values) && !miPartida.puedesCapturar()) || aux.esDestinoCaptura(values) 
+                     || (miPartida.puedeSeguirCapturando() && aux.esDestino(values) && aux.esDestinoCaptura(values))){
                     Pointers.add(values); 
                     break;
                 }
-                else if(aux2!=null && aux.getColor().equals(aux2.getColor()) && !miPartida.HasCapturado()) {
-                    actualizarLabels();
+                //Añado esta linea para poder deseleccionar la ficha seleccionada por otra del mismo bando simpre que no este obligado a comer con la ficha 
+                //ya seleccionada, es decir si puedeSeguirCapturando==false
+                else if(aux2!=null && aux.getColor().equals(aux2.getColor()) && !miPartida.puedeSeguirCapturando()) {
+                    actualizarCasillas();
                     Pointers.clear();
                     Pointers.add(values);
                     actualizarDestinosLabels(values);
@@ -170,116 +171,103 @@ public class DamasGUI extends javax.swing.JFrame {
                 actualizarStatusLabel();
                 break;
         }
-        
-        if (Pointers.size()==2)
-        {
+        //Ahora que tenemos los dos click intentamos realizar un movimiento y actualizamos los Pointers
+        if (Pointers.size()==2){
             try{
-                miPartida.modificarTablero(Pointers);
+                miPartida.modificarPartida(Pointers);
                 Pointers.clear(); 
-                miPartida.setHasCapturado(false);
+                miPartida.setPuedeSeguirCapturando(false);
             }
             catch(VictoriaException e1){
-                actualizarLabels();  
+                actualizarCasillas();  
                 this.TerminarPrograma(e1.getMessage());
             }
-            catch(CapturadoException e2){
-                miPartida.setHasCapturado(true);
+            catch(PuedoSeguirCapturandoException e2){
+                miPartida.setPuedeSeguirCapturando(true);
                 Pointers.clear();
-                Pointers.add(e2.getcoordenadas());
-                if(!Pointers.isEmpty())actualizarDestinosLabels(Pointers.get(0));
+                Pointers.add(e2.getcoordenadas());//Fijamos la coordenada de la ficha que debe seguir comiendo
+                actualizarDestinosLabels(Pointers.get(0));
             }
             finally{
-                actualizarLabels();  
+                actualizarCasillas();  
                 actualizarStatusLabel();
                 if(!Pointers.isEmpty()&& Pointers.get(0)!=null) actualizarDestinosLabels(Pointers.get(0));
             }            
         }   
     }
-       
+    
+    //Metodo que actualiza la etiqueta de la parte superior que indica el turno
     public void actualizarStatusLabel() {
-        
         if(miPartida.getTurno().equals("B"))statusLabel.setText( "Juegan Blancas");
         else statusLabel.setText( "Juegan Negras");
     }
     
-    public void actualizarLabels()
-    {
-        for(int i=0;i<8;i++)
-            {
-                for(int j=0;j<8;j++)
-                {   
-                    c[i][j].setBorder(BorderFactory.createLineBorder(Color.BLACK));
+    //Metodo que actualiza las labels de las casillas para que se reflejen los cambios en la partida
+    public void actualizarCasillas(){
+        for(int i=0;i<8;i++){
+                for(int j=0;j<8;j++){   
+                    casillas[i][j].setBorder(BorderFactory.createLineBorder(Color.BLACK));
                     coordenadas aux = new coordenadas(i,j);
                     Ficha faux = miPartida.getFichaAt(aux);
-                    if(faux==null) c[i][j].setIcon(null);  
+                    if(faux==null) casillas[i][j].setIcon(null);  
                     else{
                         if(faux!=null && faux.getColor().equals("N") && faux instanceof Dama) {
-                            c[i][j].setIcon(DamaNegra);
+                            casillas[i][j].setIcon(DamaNegra);
                         }
                         else if(faux.getColor().equals("B") && faux instanceof Dama){
-                            c[i][j].setIcon(DamaBlanca);                       
+                            casillas[i][j].setIcon(DamaBlanca);                       
                         }
                         else if(faux.getColor().equals("N") && faux instanceof Reina){
-                            c[i][j].setIcon(ReinaNegra);                       
+                            casillas[i][j].setIcon(ReinaNegra);                       
                         }
                         else if(faux.getColor().equals("B") && faux instanceof Reina){
-                            c[i][j].setIcon(ReinaBlanca);                       
+                            casillas[i][j].setIcon(ReinaBlanca);                       
                         }
                     }
                 }  
             }    
     }    
-    
+   
+    //Metodo que pinta el borde de las casillas a las que puede viajar la ficha situada en la casilla p
     public void actualizarDestinosLabels(coordenadas p){   
-        actualizarLabels();
+        actualizarCasillas();
         Ficha faux = miPartida.getFichaAt(p);
         faux.calcularDestinos(miPartida);
         int row,col;
-        if(!miPartida.HasCapturado() && !miPartida.puedesCapturar(faux))
-        {
+        if(!miPartida.puedeSeguirCapturando() && !miPartida.puedesCapturar()){
             for(int i = 0 ; i<faux.destinos.size(); i++)
             {
                 row=faux.destinos.get(i).x;
                 col=faux.destinos.get(i).y;
-                c[row][col].setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
+                casillas[row][col].setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
             } 
         }
         else{
-            for(int i = 0 ; i<faux.destinosCaptura.size(); i++)
-            {
+            for(int i = 0 ; i<faux.destinosCaptura.size(); i++){
                 row=faux.destinosCaptura.get(i).x;
                 col=faux.destinosCaptura.get(i).y;
-                c[row][col].setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
+                casillas[row][col].setBorder(BorderFactory.createLineBorder(Color.YELLOW, 5));
             }    
         }
     }
     
-    private void TerminarPrograma(String str)
-    {
-        JOptionPane.showMessageDialog(
-        this,
-        str,
-        "",
-        JOptionPane.INFORMATION_MESSAGE
-        );
-
+    private void TerminarPrograma(String str){
+        JOptionPane.showMessageDialog(this,str,"",JOptionPane.INFORMATION_MESSAGE);
         // Finalizar el programa después de mostrar el mensaje
-        this.dispose(); // Liberar los recursos de la ventana
+        this.dispose();
         System.exit(0); // Finalizar el programa
         
     }
 }
 
-
-//Implementacion de los liseners
+//Implementacion de los distintos liseners liseners
 
 class GuardarClick extends MouseAdapter {
     
     DamasGUI D;
     coordenadas p;
     
-    public GuardarClick (DamasGUI Da,coordenadas p)
-    {
+    public GuardarClick (DamasGUI Da,coordenadas p){
         D=Da;
         this.p=p;
     }
@@ -293,14 +281,13 @@ class retroButtonClick extends MouseAdapter {
     
     DamasGUI D;
     
-    public retroButtonClick (DamasGUI D)
-    {
+    public retroButtonClick (DamasGUI D){
         this.D=D;
     }
     
     public void mouseClicked(java.awt.event.MouseEvent evt) {
          D.miPartida.retoceder();
-         D.actualizarLabels();
+         D.actualizarCasillas();
          D.actualizarStatusLabel();
          if(!DamasGUI.Pointers.isEmpty())D.actualizarDestinosLabels(DamasGUI.Pointers.get(0));
     }
@@ -310,17 +297,14 @@ class CargarButtonClick extends MouseAdapter {
     
     DamasGUI D;
     
-    public CargarButtonClick (DamasGUI D)
-    {
+    public CargarButtonClick (DamasGUI D){
         this.D=D;
     }
-    
      public void mouseClicked(java.awt.event.MouseEvent evt) {
+         
         // Crear un selector de archivos
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Seleccionar Partida Guardada");
-        
-        // Establecer el directorio predeterminado como la carpeta "partidas guardadas"
         fileChooser.setCurrentDirectory(new File("PartidasGuardadas"));
              
         int userSelection = fileChooser.showOpenDialog(D);
@@ -331,14 +315,12 @@ class CargarButtonClick extends MouseAdapter {
             
             try {
                 DamasGUI.miPartida.CargarPartida(nombreArchivo);
-                D.actualizarLabels();
+                D.actualizarCasillas();
                 D.actualizarStatusLabel();
                 if (!DamasGUI.Pointers.isEmpty()) {
                     D.actualizarDestinosLabels(DamasGUI.Pointers.get(0));
                 }   
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(D, "Error al cargar la partida: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            } catch (Exception e) {}
         }
     }
 }
@@ -347,37 +329,30 @@ class GuardarButtonClick extends MouseAdapter {
     
     DamasGUI D;
     
-    public GuardarButtonClick (DamasGUI D)
-    {
+    public GuardarButtonClick (DamasGUI D){
         this.D=D;
     }
-    
     public void mouseClicked(java.awt.event.MouseEvent evt) {
-        // Mostrar un cuadro de diálogo para que el usuario introduzca el nombre del archivo
+
         String nombreArchivo = JOptionPane.showInputDialog(D, "Introduce el nombre del archivo:", "Guardar Partida", JOptionPane.PLAIN_MESSAGE);
-        
-        // Comprobar si el usuario ha introducido un nombre y no ha cancelado el cuadro de diálogo
+        // Comprobar se ha introducido un nombre y no ha cancelado el cuadro de diálogo
         if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
             DamasGUI.miPartida.GuardarPartida(nombreArchivo);
-            JOptionPane.showMessageDialog(D, "Partida guardada como " + nombreArchivo, "Éxito", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            JOptionPane.showMessageDialog(D, "Nombre de archivo no válido", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        } 
     }
 }
 
 class NuevaPartidaButtonClick extends MouseAdapter {
     
     DamasGUI D;
-    
-    public NuevaPartidaButtonClick (DamasGUI D)
-    {
+
+    public NuevaPartidaButtonClick (DamasGUI D){
         this.D=D;
     }
     
     public void mouseClicked(java.awt.event.MouseEvent evt) {
         DamasGUI.miPartida.nuevaPartida();
-        D.actualizarLabels();
+        D.actualizarCasillas();
         DamasGUI.Pointers.clear();
     }
 }

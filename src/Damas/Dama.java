@@ -13,25 +13,27 @@ public class Dama extends Ficha{
         color=col;
     }
 
-    public void calcularDestinos(Juego J) {
+    public void calcularDestinos(Partida J) {
+        //Borro los antiguos destinos de la ficha
         destinos.clear();
         destinosCaptura.clear();
         
-        coordenadas[] d = new coordenadas[4];
-        d[0] = new coordenadas(1,1);
-        d[1] = new coordenadas(1,-1);
-        d[2] = new coordenadas(-1,1);
-        d[3] = new coordenadas(-1,-1);
+        coordenadas[] direcciones = new coordenadas[4];
+        direcciones[0] = new coordenadas(1,1);
+        direcciones[1] = new coordenadas(1,-1);
+        direcciones[2] = new coordenadas(-1,1);
+        direcciones[3] = new coordenadas(-1,-1);
         
+        //En cada direccion busco casillas vacias o enemigos que pueda capturar
         for(int i=0;i<4;i++)
         {
             try
             {
-            coordenadas q = this.getPosicion().add(d[i]);
+            coordenadas q = this.getPosicion().add(direcciones[i]);
             
             if(J.getFichaAt(q)==null) destinos.add(q);
                    
-            coordenadas q2 = this.getPosicion().add(d[i].por(2));
+            coordenadas q2 = this.getPosicion().add(direcciones[i].por(2));
             
             if(J.getFichaAt(q2)==null && J.getFichaAt(q)!=null && J.getFichaAt(q).getColor().equals(this.Rival())) 
             {

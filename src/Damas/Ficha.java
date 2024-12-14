@@ -15,10 +15,11 @@ public abstract class Ficha {
     
     public Ficha(coordenadas p){
         posicion=p;
-        destinos = new ArrayList<>();
-        destinosCaptura = new ArrayList<>();
+        destinos = new ArrayList<>(); //Posibles destinos a los que se puede mover una ficha a priori(Sin tener en cuenta si ya a comido antes o si alguna otra ficha de su equipo puede comer)
+        destinosCaptura = new ArrayList<>();//Subconjunto de destinos a en los cuales se captura una ficha rival si te mueves a ellos
     }
     
+    //Gettes y setters
     public coordenadas getPosicion() {
         return posicion;
     }
@@ -29,9 +30,11 @@ public abstract class Ficha {
     
     public abstract String getColor();
     
-    public abstract void calcularDestinos(Juego J);
+    //Funcion que en un momento dado de la partida calcula los destinos y los destinos de captura
+    public abstract void calcularDestinos(Partida J);
      
-    public boolean esValido(coordenadas p){   
+    //Funcion que comprueva si una coordenada es un destino
+    public boolean esDestino(coordenadas p){   
         for (int i = 0; i < destinosCaptura.size(); i++){
             if (p.equals(destinosCaptura.get(i))){
                 return true;
@@ -48,7 +51,8 @@ public abstract class Ficha {
     return false;   
     } 
     
-    public boolean esCaptura(coordenadas p) {    
+    //Funcion que comprueva si una coordenada es un destino de captura
+    public boolean esDestinoCaptura(coordenadas p) {    
         for (int i = 0; i < destinosCaptura.size(); i++){
             if (p.equals(destinosCaptura.get(i))){
                 return true;
@@ -65,6 +69,7 @@ public abstract class Ficha {
     
     public abstract String toString();
     
+    //Redefiniciones de los metodos equals u hashcode necesarios para utilizar correctamente luego el metodo remove 
     public boolean equals(Object obj) {
         if (this == obj) return true; // Compara si son la misma referencia
         if (obj == null || getClass() != obj.getClass()) return false; // Verifica el tipo
@@ -78,7 +83,7 @@ public abstract class Ficha {
         // Genera un hash basado en las coordenadas y el color
         return Objects.hash(posicion);
     }
-    
+       
 }
 
 
