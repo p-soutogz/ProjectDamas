@@ -9,8 +9,7 @@ public class Dama extends Ficha{
     String color;
     
     public Dama(coordenadas p,String col){
-        super(p);
-        color=col;
+        super(p,col);
     }
 
     public void calcularDestinos(Partida J) {
@@ -45,8 +44,6 @@ public class Dama extends Ficha{
             catch(Exception e){} 
         }
     }
-  
-    public String getColor() { return color; }
   
     public String toString(){
         return "D"+this.getColor()+super.getPosicion().toString();

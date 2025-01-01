@@ -12,9 +12,11 @@ public abstract class Ficha {
     private coordenadas posicion;
     protected ArrayList<coordenadas> destinosCaptura;
     protected ArrayList<coordenadas> destinos;
+    protected String color;
     
-    public Ficha(coordenadas p){
+    public Ficha(coordenadas p,String col){
         posicion=p;
+        color=col;
         destinos = new ArrayList<>(); //Posibles destinos a los que se puede mover una ficha a priori(Sin tener en cuenta si ya a comido antes o si alguna otra ficha de su equipo puede comer)
         destinosCaptura = new ArrayList<>();//Subconjunto de destinos a en los cuales se captura una ficha rival si te mueves a ellos
     }
@@ -28,7 +30,7 @@ public abstract class Ficha {
         this.posicion = posicion;
     }
     
-    public abstract String getColor();
+    public String getColor() { return color; }
     
     //Funcion que en un momento dado de la partida calcula los destinos y los destinos de captura
     public abstract void calcularDestinos(Partida J);
