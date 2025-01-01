@@ -138,7 +138,6 @@ public class Partida {
         coordenadas p = pointers.get(0);
         coordenadas q = pointers.get(1);
         Ficha pFicha=getFichaAt(p);
-        Ficha qFicha=getFichaAt(q);
         
         pFicha.calcularDestinos(this);
           
