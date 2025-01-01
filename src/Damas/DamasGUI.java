@@ -232,6 +232,7 @@ public class DamasGUI extends javax.swing.JFrame {
     public void actualizarDestinosLabels(coordenadas p){   
         actualizarCasillas();
         Ficha faux = miPartida.getFichaAt(p);
+        if(faux==null) return;
         faux.calcularDestinos(miPartida);
         int row,col;
         if(!miPartida.puedeSeguirCapturando() && !miPartida.puedesCapturar()){

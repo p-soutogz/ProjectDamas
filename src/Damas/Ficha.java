@@ -26,7 +26,7 @@ public abstract class Ficha {
         return posicion;
     }
 
-    public void setPosicion(coordenadas posicion) {
+    public void moveTo(coordenadas posicion) {
         this.posicion = posicion;
     }
     

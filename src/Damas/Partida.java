@@ -13,8 +13,7 @@ import java.nio.file.*;
  */
 
 public class Partida {
-   
-    private Ficha[][] Tablero; //Las entradas null representaran casillas vacias en el tablero
+ 
     private ArrayList<Ficha> Blancas; //Array que guardara referencias a todas la fichas del equipo blanco
     private ArrayList<Ficha> Negras; //Array que guardara referencias a todas la fichas del equipo negro
     private String turno;
@@ -28,7 +27,6 @@ public class Partida {
     private void initComponents(){          
         turno = "B";
         puedeSeguirCapturando = false;
-        Tablero = new Ficha[8][8];
         Historial = new StringBuffer();
         Blancas = new ArrayList<>();
         Negras = new ArrayList<>();
@@ -36,39 +34,45 @@ public class Partida {
         int c = 1;
         for (int i = 0; i < 3; i++){
             for (int j = c % 2; j < 8; j += 2){
-                Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"N");
-                Negras.add(aux);
+                Negras.add(new Dama(new coordenadas(i,j),"N"));
             }
             c++;
         }
         for (int i = 5; i < 8; i++){
             for (int j = c % 2; j < 8; j += 2){
-                Ficha aux = Tablero[i][j] = new Dama(new coordenadas(i,j),"B");
-                Blancas.add(aux);
+                Blancas.add(new Dama(new coordenadas(i,j),"B"));
             }
             c++;
         }  
     }
     
     //Varios getters y setters asi como funciones auxiliares sencillas
+       
     
     public Ficha getFichaAt(coordenadas p){
-        return Tablero[p.x][p.y];
+       
+        for(int i=0;i<Blancas.size();i++){
+            if(Blancas.get(i).getPosicion().equals(p)) return Blancas.get(i);
+        }
+        for(int i=0;i<Negras.size();i++){
+            if(Negras.get(i).getPosicion().equals(p)) return Negras.get(i);
+        }
+        return null;    
     }
     
-    public void setFicha(Ficha f,coordenadas p) {
-        Tablero[p.x][p.y]=f;      
-        Tablero[p.x][p.y].setPosicion(p);
-    }
-    
-    public void borrarFicha(coordenadas p) {
-        Tablero[p.x][p.y]=null;       
-    }
-        
     public String getTurno() {
         return turno;
     }
 
+    public void borrarFicha(coordenadas p) {
+        Ficha faux = this.getFichaAt(p);
+        if(faux==null) return;
+        if(faux.getColor()=="B")Blancas.remove(this.getFichaAt(p));
+        else{
+            Negras.remove(this.getFichaAt(p));
+        }
+    }
+    
     public void changeTurno() {
         if(turno.equals("B")) this.turno = "N";
         else{this.turno="B";}
@@ -126,7 +130,7 @@ public class Partida {
     
     //Funcion que mueve una ficha de una posicion de tablero a otra y elimina las fichas sobre las que salta
     public void moverFicha(coordenadas p,coordenadas q) throws VictoriaException{
-        this.setFicha(this.getFichaAt(p), q);
+        this.getFichaAt(p).moveTo(q);
         this.borrarFicha(p);
         if(!q.equals(p))this.eliminarFichasComidas(p,q);
         this.coronar();
@@ -205,15 +209,13 @@ public class Partida {
             Ficha fk = getFichaAt(k);
             if(fq!=null && fq.getColor().equals("B") && fq instanceof Dama){
                 Blancas.remove(fq);
-                this.setFicha(new Reina(q,"B"), q);
-                Blancas.add(this.getFichaAt(q));
+                Blancas.add(new Reina(q,"B"));
                 Historial.deleteCharAt(Historial.length()-1);
                 Historial.append("c\n");
             }
             if(fk!=null && fk.getColor().equals("N") && fk instanceof Dama){
                 Negras.remove(fk);
-                this.setFicha(new Reina(k,"N"), k);
-                Negras.add(this.getFichaAt(k));
+                Negras.add(new Reina(k,"N"));
                 Historial.deleteCharAt(Historial.length()-1);
                 Historial.append("c\n");
             }    
@@ -259,8 +261,6 @@ public class Partida {
     public void CargarPartida(String partida){
         
         //Borro los atributos de mi partida actual
-        
-        Tablero=new Ficha[8][8];
         Blancas.clear();
         Negras.clear();
         
@@ -315,12 +315,7 @@ public class Partida {
             }
             i++;      
         }
-        for(i=0;i<Blancas.size();i++){
-            this.setFicha(Blancas.get(i), Blancas.get(i).getPosicion());
-        }
-        for(i=0;i<Negras.size();i++){
-            setFicha(Negras.get(i), Negras.get(i).getPosicion());
-        }   
+         
     }
 
     public void nuevaPartida(){
@@ -352,7 +347,7 @@ public class Partida {
             }
         }//La unica posibilidad de que la longitud del movimiento no sea multiplo de 4 es que haya coronado en ese movimiento
  
-        this.setFicha(auxFicha, p);
+        auxFicha.moveTo(p);
         this.borrarFicha(q);
         int contador=1;
         //Ahora vamos a recuperar la fichas que se han comido en el ultimo movimiento
@@ -360,22 +355,22 @@ public class Partida {
             aux = new coordenadas(ultimoMovimiento.charAt(contador*4+2)-'0',ultimoMovimiento.charAt(contador*4+3)-'0');
             if(ultimoMovimiento.charAt(contador*4)=='D'&& ultimoMovimiento.charAt(contador*4+1)=='B') {
                 auxFicha=new Dama(aux,"B");
-                this.setFicha(auxFicha, aux);
+                //this.setFicha(auxFicha, aux);
                 Blancas.add(auxFicha);
             } 
             if(ultimoMovimiento.charAt(contador*4)=='D'&& ultimoMovimiento.charAt(contador*4+1)=='N'){
                 auxFicha=new Dama(aux,"N");
-                this.setFicha(auxFicha, aux);
+                //this.setFicha(auxFicha, aux);
                 Negras.add(auxFicha);
             }
             if(ultimoMovimiento.charAt(contador*4)=='R'&& ultimoMovimiento.charAt(contador*4+1)=='B'){
                 auxFicha=new Reina(aux,"B");
-                this.setFicha(auxFicha, aux);
+                //this.setFicha(auxFicha, aux);
                 Blancas.add(auxFicha);
             }
             if(ultimoMovimiento.charAt(contador*4)=='R'&& ultimoMovimiento.charAt(contador*4+1)=='N'){
-                auxFicha=new Reina(aux,"");
-                this.setFicha(auxFicha, aux);
+                auxFicha=new Reina(aux,"N");
+                //this.setFicha(auxFicha, aux);
                 Negras.add(auxFicha);
             }
             contador++;
@@ -401,6 +396,8 @@ public class Partida {
         movimientos.removeLast();
         Historial = new StringBuffer(String.join("\n", movimientos)+"\n"); //Recupero el historial
     }
+
+
 }
     
 
