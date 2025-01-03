@@ -6,8 +6,7 @@ package excepciones;
  */
 public class VictoriaException extends Exception{
     
-    public VictoriaException (String str)
-    {
+    public VictoriaException (String str){
         super(str);
     }
     
